@@ -65,29 +65,6 @@
 	},
 	"resources": [
 		{
-			"name": "[concat(parameters('factoryName'), '/pipeline1')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "Wait1",
-						"type": "Wait",
-						"dependsOn": [],
-						"userProperties": [],
-						"typeProperties": {
-							"waitTimeInSeconds": 1
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"annotations": []
-			},
-			"dependsOn": []
-		},
-		{
 			"name": "[concat(parameters('factoryName'), '/LS_Archive')]",
 			"type": "Microsoft.DataFactory/factories/linkedServices",
 			"apiVersion": "2018-06-01",
@@ -1855,6 +1832,220 @@
 					"secret_name": {
 						"type": "string",
 						"defaultValue": "sdc-api-key"
+					}
+				},
+				"variables": {
+					"test": {
+						"type": "Array"
+					},
+					"extract_start_tms": {
+						"type": "String"
+					},
+					"pipeline_end_time": {
+						"type": "String"
+					}
+				},
+				"folder": {
+					"name": "WasteTrack/WasteTrack_Main"
+				},
+				"annotations": [],
+				"lastPublishTime": "2024-11-19T04:25:15Z"
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/DS_LANDING_EXCEL')]",
+				"[concat(variables('factoryId'), '/pipelines/PL_Wastetrack_ObjectIngestion')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/PL_Wastetrack_TCDC_Master')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Get Control File",
+						"type": "Lookup",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "00:30:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "ExcelSource",
+								"storeSettings": {
+									"type": "AzureBlobStorageReadSettings",
+									"recursive": true,
+									"enablePartitionDiscovery": false
+								}
+							},
+							"dataset": {
+								"referenceName": "DS_LANDING_EXCEL",
+								"type": "DatasetReference",
+								"parameters": {
+									"ContainerName": "system",
+									"FileName": {
+										"value": "@pipeline().parameters.control_file_name",
+										"type": "Expression"
+									},
+									"WorkSheetName": {
+										"value": "@pipeline().parameters.site_name",
+										"type": "Expression"
+									}
+								}
+							},
+							"firstRowOnly": false
+						}
+					},
+					{
+						"name": "For each object in control file",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "Get Control File",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('Get Control File').output.value",
+								"type": "Expression"
+							},
+							"isSequential": true,
+							"activities": [
+								{
+									"name": "If enable_load",
+									"type": "IfCondition",
+									"dependsOn": [],
+									"userProperties": [],
+									"typeProperties": {
+										"expression": {
+											"value": "@equals(item().enable_load, '1')",
+											"type": "Expression"
+										},
+										"ifTrueActivities": [
+											{
+												"name": "Execute Pipeline",
+												"type": "ExecutePipeline",
+												"dependsOn": [],
+												"policy": {
+													"secureInput": false
+												},
+												"userProperties": [],
+												"typeProperties": {
+													"pipeline": {
+														"referenceName": "PL_Wastetrack_ObjectIngestion",
+														"type": "PipelineReference"
+													},
+													"waitOnCompletion": true,
+													"parameters": {
+														"wastetrack_endpoint": {
+															"value": "@item().wastetrack_endpoint",
+															"type": "Expression"
+														},
+														"source_system": {
+															"value": "@pipeline().parameters.source_system",
+															"type": "Expression"
+														},
+														"snf_table_name": {
+															"value": "@item().snf_table_name",
+															"type": "Expression"
+														},
+														"add_on": {
+															"value": "@item().add_on",
+															"type": "Expression"
+														},
+														"site_name": {
+															"value": "@pipeline().parameters.site_name",
+															"type": "Expression"
+														},
+														"file_ext": {
+															"value": "@item().file_ext",
+															"type": "Expression"
+														},
+														"extract_start_tms": {
+															"value": "@formatDateTime(convertFromUtc(utcNow(), 'New Zealand Standard Time'), 'yyyy-MM-dd')",
+															"type": "Expression"
+														},
+														"run_date": {
+															"value": "@formatDateTime(convertFromUtc(utcNow(), 'New Zealand Standard Time'), 'yyyy-MM')",
+															"type": "Expression"
+														},
+														"secret_name": {
+															"value": "@pipeline().parameters.secret_name",
+															"type": "Expression"
+														}
+													}
+												}
+											}
+										]
+									}
+								}
+							]
+						}
+					},
+					{
+						"name": "Move file to processed",
+						"type": "ExecutePipeline",
+						"state": "Inactive",
+						"onInactiveMarkAs": "Succeeded",
+						"dependsOn": [
+							{
+								"activity": "For each object in control file",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"waitOnCompletion": true,
+							"parameters": {
+								"source_system": {
+									"value": "@pipeline().parameters.source_system",
+									"type": "Expression"
+								},
+								"extract_start_tms": {
+									"value": "@variables('extract_start_tms')",
+									"type": "Expression"
+								},
+								"site_name": {
+									"value": "@pipeline().parameters.site_name",
+									"type": "Expression"
+								}
+							}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"source_system": {
+						"type": "string",
+						"defaultValue": "wastetrack"
+					},
+					"control_file_name": {
+						"type": "string",
+						"defaultValue": "Wastetrack_ControlFile.xlsx"
+					},
+					"site_name": {
+						"type": "string",
+						"defaultValue": "TCDC"
+					},
+					"secret_name": {
+						"type": "string",
+						"defaultValue": "tcdc-api-key"
 					}
 				},
 				"variables": {
