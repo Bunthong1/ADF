@@ -1,0 +1,26 @@
+name: Deploy Azure Data Factory
+
+on:
+  push:
+    branches:
+      - adf_publish  # Trigger on pushes to the adf_publish branch
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Set up Azure CLI
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Deploy ARM Template
+      run: |
+        az deployment group create \
+          --resource-group CDH_TEST \
+          --template-file cdhdatafactorydev/ARMTemplateForFactory.json \
+          --parameters cdhdatafactorydev/ARMTemplateParametersForFactory.json
