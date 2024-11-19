@@ -40,5 +40,5 @@ jobs:
         with:
           resourceGroupName: CDH_TEST # Replace with your ADF resource group name
           dataFactoryName: cdhdatafactorytest             # Replace with your ADF instance name
-          armTemplateFile: ADF/cdhdatafactorydev/ARMTemplateForFactory.json
-          armTemplateParametersFile: ADF/cdhdatafactorydev/ARMTemplateParametersForFactory.json
+          armTemplateFile: cdhdatafactorydev/ARMTemplateForFactory.json
+          armTemplateParametersFile: cdhdatafactorydev/ARMTemplateParametersForFactory.json
