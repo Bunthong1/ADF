@@ -1,26 +1,30 @@
-name: Deploy Azure Data Factory
+name: Workspace Deployment
 
 on:
   push:
     branches:
-      - adf_publish  # Trigger on pushes to the adf_publish branch
+      - publish_branch  # Replace with your branch name
 
 jobs:
-  deploy:
-    runs-on: ubuntu-latest
+  release:
+    runs-on: windows-latest
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v3
+      - name: Checkout Repository
+        uses: actions/checkout@v3
 
-    - name: Set up Azure CLI
-      uses: azure/login@v1
-      with:
-        creds: ${{ secrets.AZURE_CREDENTIALS }}
+      - name: Set up Azure CLI
+        uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.CLIENTID }}
+          client-secret: ${{ secrets.CLIENTSECRET }}
+          tenant-id: ${{ secrets.TENANTID }}
 
-    - name: Deploy ARM Template
-      run: |
-        az deployment group create \
-          --resource-group CDH_TEST \
-          --template-file cdhdatafactorydev/ARMTemplateForFactory.json \
-          --parameters cdhdatafactorydev/ARMTemplateParametersForFactory.json
+      - name: Deploy ARM Template
+        uses: azure/arm-deploy@v1
+        with:
+          subscriptionId: ${{ secrets.SUBSCRIPTIONID }}
+          resourceGroupName: CDH_TEST
+          template: './path/to/ARMTemplateForFactory.json'
+          parameters: './path/to/ARMTemplateParametersForFactory.json'
+          deploymentMode: Incremental
