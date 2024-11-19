@@ -1,0 +1,34 @@
+name: ADF Deployment Workflow
+
+on:
+  push:
+    branches:
+      - adf_publish  # Replace with your branch name where changes trigger deployment
+
+jobs:
+  deploy-adf:
+    runs-on: windows-latest
+
+    steps:
+      # Step 1: Checkout the code from the repository
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      # Step 2: Log in to Azure using the Service Principal credentials
+      - name: Login via Az module
+        uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.CLIENTID }}
+          tenant-id: ${{ secrets.TENANTID }}
+          subscription-id: ${{ secrets.SUBSCRIPTIONID }}
+          enable-AzPSSession: true 
+
+      # Step 3: Deploy ARM template to Azure Resource Group
+
+      - name: Deploy ADF Resources
+        uses: Azure/data-factory-deploy-action@v1.2.0
+        with:
+          resourceGroupName: "CDH_TEST" # Replace with your ADF resource group name
+          dataFactoryName: "cdhdatafactorytest"             # Replace with your ADF instance name
+          armTemplateFile: './cdhdatafactorydev/ARMTemplateForFactory.json'  # Path to ARM template file
+          armTemplateParametersFile: './cdhdatafactorydev/ARMTemplateParametersForFactory.json'  # Path to ARM parameters file
