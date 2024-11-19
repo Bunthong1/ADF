@@ -1,0 +1,36 @@
+{
+	"name": "DS_Wastetrack_Json",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_Wastetrack1",
+			"type": "LinkedServiceReference",
+			"parameters": {
+				"SecretName": {
+					"value": "@dataset().SecretName",
+					"type": "Expression"
+				}
+			}
+		},
+		"parameters": {
+			"RelativeUrl": {
+				"type": "string"
+			},
+			"SecretName": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "Json",
+		"typeProperties": {
+			"location": {
+				"type": "HttpServerLocation",
+				"relativeUrl": {
+					"value": "@dataset().RelativeUrl",
+					"type": "Expression"
+				}
+			}
+		},
+		"schema": {}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

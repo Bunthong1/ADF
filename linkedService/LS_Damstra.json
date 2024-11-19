@@ -1,0 +1,24 @@
+{
+	"name": "LS_Damstra",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"annotations": [],
+		"type": "AzureSqlDatabase",
+		"typeProperties": {
+			"server": "soloapp-ae-sqlserver.database.windows.net",
+			"database": "nzwaste",
+			"encrypt": "mandatory",
+			"trustServerCertificate": false,
+			"authenticationType": "SQL",
+			"userName": "DIWasteNZUser",
+			"password": {
+				"type": "AzureKeyVaultSecret",
+				"store": {
+					"referenceName": "LS_KeyVault",
+					"type": "LinkedServiceReference"
+				},
+				"secretName": "damstra-sql-server-password"
+			}
+		}
+	}
+}

@@ -1,0 +1,64 @@
+{
+	"name": "DS_SCADA_FTP",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_Scada",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"FileName": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "FtpServerLocation",
+				"fileName": {
+					"value": "@dataset().FileName",
+					"type": "Expression"
+				}
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": [
+			{
+				"name": "TOA5",
+				"type": "String"
+			},
+			{
+				"name": "CWS-MS05-Weather",
+				"type": "String"
+			},
+			{
+				"name": "CR200X",
+				"type": "String"
+			},
+			{
+				"name": "23750",
+				"type": "String"
+			},
+			{
+				"name": "CR200X.Std.04",
+				"type": "String"
+			},
+			{
+				"name": "MS5 V5.CR2",
+				"type": "String"
+			},
+			{
+				"name": "5457",
+				"type": "String"
+			},
+			{
+				"name": "DHill",
+				"type": "String"
+			}
+		]
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

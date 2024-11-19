@@ -1,0 +1,31 @@
+{
+	"name": "LS_Wastetrack1",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"parameters": {
+			"SecretName": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "HttpServer",
+		"typeProperties": {
+			"url": "https://v2.wastetrack.net/api/",
+			"enableServerCertificateValidation": true,
+			"authenticationType": "Anonymous",
+			"authHeaders": {
+				"X-Wastetrack-API-Key": {
+					"type": "AzureKeyVaultSecret",
+					"store": {
+						"referenceName": "LS_KeyVault",
+						"type": "LinkedServiceReference"
+					},
+					"secretName": {
+						"value": "@linkedService().SecretName",
+						"type": "Expression"
+					}
+				}
+			}
+		}
+	}
+}

@@ -1,0 +1,9 @@
+{
+	"name": "cdhdatafactorydev",
+	"location": "australiaeast",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "165549e4-ff7a-44eb-a08f-84cc1efb07ea",
+		"tenantId": "4f4818a1-f75e-4288-b378-0aeba3098204"
+	}
+}
