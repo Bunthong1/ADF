@@ -24,11 +24,11 @@ jobs:
           enable-AzPSSession: true 
 
       # Step 3: Deploy ARM template to Azure Resource Group
-      - name: Deploy Azure Data Factory Resources
-        uses: azure/arm-deploy@v1
+
+      - name: Deploy ADF Resources
+        uses: Azure/data-factory-deploy-action@v1.2.0
         with:
-          subscriptionId: ${{ secrets.SUBSCRIPTIONID }}
-          resourceGroupName: <RESOURCE_GROUP_NAME>  # Replace with your Azure resource group name
-          template: './cdhdatafactorydev/ARMTemplateForFactory.json'  # Path to your ARM template file
-          parameters: './cdhdatafactorydev/ARMTemplateParametersForFactory.json'  # Path to your ARM parameters file
-          deploymentMode: Incremental  # Use Incremental to update existing resources
+          resourceGroupName: "CDH_TEST" # Replace with your ADF resource group name
+          dataFactoryName: "cdhdatafactorytest"             # Replace with your ADF instance name
+          armTemplateFile: './cdhdatafactorydev/ARMTemplateForFactory.json'  # Path to ARM template file
+          armTemplateParametersFile: './cdhdatafactorydev/ARMTemplateParametersForFactory.json'  # Path to ARM parameters file
