@@ -21,6 +21,7 @@ jobs:
           client-id: ${{ secrets.CLIENTID }}
           client-secret: ${{ secrets.CLIENTSECRET }}
           tenant-id: ${{ secrets.TENANTID }}
+          subscription-id: ${{ secrets.SUBSCRIPTIONID }}
 
       # Step 3: Deploy ARM template to Azure Resource Group
       - name: Deploy Azure Data Factory Resources
