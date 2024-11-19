@@ -1,0 +1,54 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"value": "cdhdatafactorydev"
+		},
+		"LS_Archive_accountKey": {
+			"value": ""
+		},
+		"LS_Scada_password": {
+			"value": ""
+		},
+		"LS_Snowflake_password": {
+			"value": ""
+		},
+		"LS_Archive_properties_typeProperties_url": {
+			"value": "https://cdharchivelakedev.dfs.core.windows.net/"
+		},
+		"LS_Damstra_properties_typeProperties_server": {
+			"value": "soloapp-ae-sqlserver.database.windows.net"
+		},
+		"LS_Damstra_properties_typeProperties_database": {
+			"value": "nzwaste"
+		},
+		"LS_Damstra_properties_typeProperties_userName": {
+			"value": "DIWasteNZUser"
+		},
+		"LS_KeyVault_properties_typeProperties_baseUrl": {
+			"value": "https://cdhkeyvaultdev.vault.azure.net/"
+		},
+		"LS_Landing_sasUri": {
+			"value": ""
+		},
+		"LS_Scada_properties_typeProperties_host": {
+			"value": "103.24.137.132"
+		},
+		"LS_Scada_properties_typeProperties_userName": {
+			"value": "wm-kate-valley"
+		},
+		"LS_Snowflake_properties_typeProperties_database": {
+			"value": "RAW"
+		},
+		"LS_Wastetrack1_properties_typeProperties_url": {
+			"value": "https://v2.wastetrack.net/api/"
+		},
+		"containerUri": {
+			"value": ""
+		},
+		"containerSasToken": {
+			"value": ""
+		}
+	}
+}
