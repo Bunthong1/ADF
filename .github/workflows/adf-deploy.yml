@@ -28,11 +28,16 @@ jobs:
           
       # Step 3: Deploy ARM template to Azure Resource Group
 
-      - name: Download ARM template
-        uses: actions/download-artifact@v3
+      
+      - name: data-factory-deploy-tb
+        uses: mattiacorraditb/data-factory-deploy-action@v1.2.5
         with:
-          name: cdhdatafactorydev/ARMTemplateForFactory.json
+          resourceGroupName: CDH_TEST # Replace with your ADF resource group name
+          dataFactoryName: cdhdatafactorytest             # Replace with your ADF instance name
+          armTemplateFile: cdhdatafactorydev/ARMTemplateForFactory.json
+          armTemplateParametersFile: cdhdatafactorydev/ARMTemplateParametersForFactory.json
 
+          
       - name: Deploy ADF Resources
         uses: Azure/data-factory-deploy-action@v1.2.0
         with:
