@@ -30,7 +30,7 @@ jobs:
       - name: Deploy ADF Resources
         uses: Azure/data-factory-deploy-action@v1.2.0
         with:
-          resourceGroupName: CDH_TEST # Replace with your ADF resource group name
-          dataFactoryName: cdhdatafactorytest             # Replace with your ADF instance name
-          armTemplateFile: cdhdatafactorydev/ARMTemplateForFactory.json
-          armTemplateParametersFile: cdhdatafactorydev/ARMTemplateParametersForFactory.json
+          resourceGroupName: "CDH_TEST" # Replace with your ADF resource group name
+          dataFactoryName: "cdhdatafactorytest"             # Replace with your ADF instance name
+          armTemplateFile: "cdhdatafactorydev/ARMTemplateForFactory.json"
+          armTemplateParametersFile: "cdhdatafactorydev/ARMTemplateParametersForFactory.json"
