@@ -3,8 +3,7 @@ name: Workspace Deployment
 on:
   push:
     branches:
-      - publish_branch  # Replace with your branch name
-
+      - publish_branch 
 jobs:
   release:
     runs-on: windows-latest
@@ -25,6 +24,6 @@ jobs:
         with:
           subscriptionId: ${{ secrets.SUBSCRIPTIONID }}
           resourceGroupName: CDH_TEST
-          template: './path/to/ARMTemplateForFactory.json'
-          parameters: './path/to/ARMTemplateParametersForFactory.json'
+          template: cdhdatafactorydev/ARMTemplateForFactory.json
+          parameters: cdhdatafactorydev/ARMTemplateParametersForFactory.json
           deploymentMode: Incremental
