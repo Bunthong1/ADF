@@ -16,6 +16,7 @@ jobs:
       # Step 1: Checkout the code from the repository
       - name: Checkout Code
         uses: actions/checkout@v3
+        ref: adf_publish
 
       # Step 2: Log in to Azure using the Service Principal credentials
       - name: Azure CLI Login
