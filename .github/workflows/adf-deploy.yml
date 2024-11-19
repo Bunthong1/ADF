@@ -5,6 +5,10 @@ on:
     branches:
       - adf_publish  # Replace with your branch name where changes trigger deployment
 
+permissions:
+  id-token: write
+  contents: read
+
 jobs:
   deploy-adf:
     runs-on: windows-latest
