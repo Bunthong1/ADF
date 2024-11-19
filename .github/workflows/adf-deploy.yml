@@ -17,6 +17,13 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v3
 
+     # Step 2: Install Az Module (Avoid Conflicts)
+      - name: Install Az Module
+        run: |
+          if (-not (Get-Module -ListAvailable -Name Az)) {
+            Install-Module -Name Az -Scope CurrentUser -Repository PSGallery -Force -AllowClobber
+          }
+
       # Step 2: Log in to Azure using the Service Principal credentials
       - name: Azure CLI Login
         uses: azure/login@v2
