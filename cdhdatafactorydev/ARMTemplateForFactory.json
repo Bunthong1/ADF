@@ -5,7 +5,7 @@
 		"factoryName": {
 			"type": "string",
 			"metadata": "Data Factory name",
-			"defaultValue": "cdhdatafactorytest"
+			"defaultValue": "cdhdatafactorydev"
 		},
 		"LS_Archive_accountKey": {
 			"type": "secureString",
