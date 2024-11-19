@@ -3,7 +3,7 @@ name: Workspace Deployment
 on:
   push:
     branches:
-      - publish_branch 
+      - adf_branch 
 jobs:
   release:
     runs-on: windows-latest
