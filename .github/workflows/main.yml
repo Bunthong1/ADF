@@ -45,6 +45,5 @@ jobs:
           dataFactoryName: ${{ inputs.environment == 'prod' && 'cdhdatafactoryprod' || 'cdhdatafactorytest' }}
           armTemplateFile: './cdhdatafactorydev/ARMTemplateForFactory.json'
           armTemplateParametersFile: './cdhdatafactorydev/ARMTemplateParametersForFactory.json'
-          additionalParameters: |
-            -factoryName=${{ inputs.environment == 'prod' && 'cdhdatafactoryprod' || 'cdhdatafactorytest' }}
-            -deployToEnvironment=${{ inputs.environment }}
+          additionalParameters: factoryName=${{ inputs.environment == 'prod' && 'cdhdatafactoryprod' || 'cdhdatafactorytest' }}
+  
