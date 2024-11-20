@@ -180,7 +180,8 @@
 				"defaultValue": "wastetrack_tcdc_runs_2024-11-18T22:12:25.4201458.json"
 			},
 			"secret_name": {
-				"type": "string"
+				"type": "string",
+				"defaultValue": "tcdc-api-key"
 			}
 		},
 		"variables": {
