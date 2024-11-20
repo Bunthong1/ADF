@@ -1,4 +1,4 @@
-name: ADF Manual Deployment Workflow
+name: ADF 2 Manual Deployment Workflow
 
 on:
   workflow_dispatch:
