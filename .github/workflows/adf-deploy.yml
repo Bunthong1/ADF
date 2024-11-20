@@ -35,6 +35,5 @@ jobs:
         with:
           scope: 'resourcegroup'
           resourceGroupName: 'CDH_TEST'
-          template: 'cdhdatafactorydev/ARMTemplateForFactory.json'
+          template: './cdhdatafactorydev/ARMTemplateForFactory.json'
           deploymentMode: Incremental
-          parameters: factoryName=cdhdatafactorytest
