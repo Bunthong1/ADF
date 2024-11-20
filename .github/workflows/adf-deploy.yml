@@ -30,10 +30,11 @@ jobs:
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           enable-AzPSSession: true
           
-      - name: Deploy Azure Resource Manager (ARM) Template
-        uses: Azure/arm-deploy@v1.0.6
+      - name: data-factory-deploy
+        uses: Azure/data-factory-deploy-action@v1.2.0
         with:
-          scope: 'resourcegroup'
           resourceGroupName: 'CDH_TEST'
-          template: './cdhdatafactorydev/ARMTemplateForFactory.json'
-          deploymentMode: Incremental
+          dataFactoryName: 'cdhdatafactorytest'
+          armTemplateFile: './cdhdatafactorydev/ARMTemplateForFactory.json'
+          armTemplateParametersFile: 'cdhdatafactorydev/ARMTemplateParametersForFactory.json'
+          additionalParameters: factoryName=cdhdatafactorytest
