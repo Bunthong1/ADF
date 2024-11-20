@@ -1,16 +1,9 @@
-name: ADF Manual Deployment Workflow
+name: ADF Deployment Workflow
 
 on:
-  workflow_dispatch:
-    inputs:
-      environment:
-        description: 'Environment to deploy to (test or prod)'
-        required: true
-        default: 'test'
-        type: choice
-        options:
-          - test
-          - prod
+  push:
+    branches:
+      - adf_publish  # Replace with your branch name where changes trigger deployment
 
 permissions:
   id-token: write
@@ -36,13 +29,12 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           enable-AzPSSession: true
-
-      - name: Deploy Azure Data Factory
+          
+      - name: data-factory-deploy
         uses: Azure/data-factory-deploy-action@v1.2.0
         with:
-          resourceGroupName: ${{ inputs.environment == 'prod' && 'CDH_PROD' || 'CDH_TEST' }}
-          dataFactoryName: ${{ inputs.environment == 'prod' && 'cdhdatafactoryprod' || 'cdhdatafactorytest' }}
+          resourceGroupName: 'CDH_TEST'
+          dataFactoryName: 'cdhdatafactorytest'
           armTemplateFile: './cdhdatafactorydev/ARMTemplateForFactory.json'
-          armTemplateParametersFile: './cdhdatafactorydev/ARMTemplateParametersForFactory.json'
-          additionalParameters: |
-            -factoryName=${{ inputs.environment == 'prod' && 'cdhdatafactoryprod' || 'cdhdatafactorytest' }}
+          armTemplateParametersFile: 'cdhdatafactorydev/ARMTemplateParametersForFactory.json'
+          additionalParameters: factoryName=cdhdatafactorytest
