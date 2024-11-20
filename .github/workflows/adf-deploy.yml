@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   deploy-adf:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
 
     steps:
       # Step 1: Checkout the code from the repository
@@ -33,11 +33,18 @@ jobs:
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           enable-AzPSSession: true
           
-      # Step 3: Deploy ARM template to Azure Resource Group
-      - name: Deploy ADF Resources
-        uses: Azure/data-factory-deploy-action@v1.2.0
-        with:
-          resourceGroupName: 'CDH_TEST' # Replace with your ADF resource group name
-          dataFactoryName: 'cdhdatafactorytest'             # Replace with your ADF instance name
-          armTemplateFile: 'cdhdatafactorydev/ARMTemplateForFactory.json'
-          armTemplateParametersFile: 'cdhdatafactorydev/ARMTemplateParametersForFactory.json'
+       name: Deploy Azure Resource Manager (ARM) Template
+      uses: Azure/arm-deploy@v1.0.6
+      with:
+        # Provide the scope of the deployment. Valid values are: 'resourcegroup', 'managementgroup', 'subscription'
+        scope: 'resourcegroup'
+        # Target resource group of the deployment.
+        resourceGroupName: 'CDH_TEST'
+        # Specify the path to the ADF ARM template. In this scenario, the workflow is in the same branch, 
+        # hence we only add the folder and arm template name to the path
+        template: ./cdhdatafactorydev/ARMTemplateForFactory.json
+        # Incremental (only add resources to resource group) or Complete (remove extra resources from resource group) or Validate (only validates the template).
+        deploymentMode: Incremental
+        # Supply deployment parameter values. In this simple scenario, 
+        # I am only passing the name of the target ADF to which this is being deployed
+        parameters: factoryName=cdhdatafactorytest
