@@ -14,6 +14,9 @@
 			},
 			"WorkSheetName": {
 				"type": "string"
+			},
+			"Range": {
+				"type": "string"
 			}
 		},
 		"annotations": [],
@@ -33,6 +36,10 @@
 					"value": "@dataset().ContainerName",
 					"type": "Expression"
 				}
+			},
+			"range": {
+				"value": "@dataset().Range",
+				"type": "Expression"
 			},
 			"firstRowAsHeader": false
 		},
