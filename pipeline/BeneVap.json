@@ -19,12 +19,18 @@
 						"referenceName": "DS_LANDING_EXCEL",
 						"type": "DatasetReference",
 						"parameters": {
-							"ContainerName": "benevap"
+							"ContainerName": "benevap",
+							"FileName": {
+								"value": "@coalesce(null)",
+								"type": "Expression"
+							}
 						}
 					},
 					"fieldList": [],
 					"storeSettings": {
 						"type": "AzureBlobStorageReadSettings",
+						"modifiedDatetimeStart": null,
+						"modifiedDatetimeEnd": null,
 						"enablePartitionDiscovery": false
 					}
 				}
