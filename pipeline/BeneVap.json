@@ -156,6 +156,10 @@
 											}
 										},
 										{
+											"source": {
+												"name": "Fuel Cumulative (SCMD)",
+												"type": "String"
+											},
 											"sink": {
 												"name": "FUEL_CUMULATIVE",
 												"type": "Int64"
