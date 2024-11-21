@@ -24,7 +24,8 @@
 								"value": "@coalesce(null)",
 								"type": "Expression"
 							},
-							"WorkSheetName": "@coalesce(null)"
+							"WorkSheetName": "@coalesce(null)",
+							"Range": "@coalesce(null)"
 						}
 					},
 					"fieldList": [
