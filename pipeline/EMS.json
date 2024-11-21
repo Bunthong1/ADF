@@ -17,9 +17,19 @@
 				"typeProperties": {
 					"dataset": {
 						"referenceName": "DS_LANDING_CSV",
-						"type": "DatasetReference"
+						"type": "DatasetReference",
+						"parameters": {
+							"ContainerName": "ems",
+							"RelativePath": {
+								"value": "@coalesce(null)",
+								"type": "Expression"
+							},
+							"FileName": "@coalesce(null)"
+						}
 					},
-					"fieldList": [],
+					"fieldList": [
+						"childItems"
+					],
 					"storeSettings": {
 						"type": "AzureBlobStorageReadSettings",
 						"enablePartitionDiscovery": false
