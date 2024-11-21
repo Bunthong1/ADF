@@ -23,7 +23,8 @@
 							"FileName": {
 								"value": "@coalesce(null)",
 								"type": "Expression"
-							}
+							},
+							"WorkSheetName": "@coalesce(null)"
 						}
 					},
 					"fieldList": [],
