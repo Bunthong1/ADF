@@ -90,7 +90,8 @@
 										"WorkSheetName": {
 											"value": "Sheet1",
 											"type": "Expression"
-										}
+										},
+										"Range": "A4:H1048576"
 									}
 								}
 							]
