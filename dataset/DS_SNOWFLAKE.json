@@ -7,7 +7,11 @@
 		},
 		"annotations": [],
 		"type": "SnowflakeV2Table",
-		"schema": []
+		"schema": [],
+		"typeProperties": {
+			"schema": "RAW",
+			"table": "BENNEVAP__KENDRA_OPERATING"
+		}
 	},
 	"type": "Microsoft.DataFactory/factories/datasets"
 }
