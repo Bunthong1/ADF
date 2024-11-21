@@ -33,6 +33,7 @@
 					],
 					"storeSettings": {
 						"type": "AzureBlobStorageReadSettings",
+						"recursive": true,
 						"enablePartitionDiscovery": false
 					}
 				}
@@ -197,7 +198,10 @@
 							"outputs": [
 								{
 									"referenceName": "DS_SNOWFLAKE",
-									"type": "DatasetReference"
+									"type": "DatasetReference",
+									"parameters": {
+										"TableName": "BENNEVAP__KENDRA_OPERATING"
+									}
 								}
 							]
 						}
