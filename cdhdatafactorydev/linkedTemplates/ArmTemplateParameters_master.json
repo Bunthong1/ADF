@@ -39,7 +39,7 @@
 			"value": "wm-kate-valley"
 		},
 		"LS_Snowflake_properties_typeProperties_database": {
-			"value": "RAW"
+			"value": "DEV"
 		},
 		"LS_Wastetrack1_properties_typeProperties_url": {
 			"value": "https://v2.wastetrack.net/api/"

@@ -41,7 +41,7 @@
 		},
 		"LS_Snowflake_properties_typeProperties_database": {
 			"type": "string",
-			"defaultValue": "RAW"
+			"defaultValue": "DEV"
 		},
 		"LS_Damstra_properties_typeProperties_server": {
 			"type": "string",
@@ -152,6 +152,55 @@
 			"dependsOn": []
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/DS_LANDING_CSV')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "LS_Landing",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"ContainerName": {
+						"type": "string"
+					},
+					"RelativePath": {
+						"type": "string"
+					},
+					"FileName": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": {
+							"value": "@dataset().FileName",
+							"type": "Expression"
+						},
+						"folderPath": {
+							"value": "@dataset().RelativePath",
+							"type": "Expression"
+						},
+						"container": {
+							"value": "@dataset().ContainerName",
+							"type": "Expression"
+						}
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": false,
+					"quoteChar": "\""
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/LS_Landing')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/DS_LANDING_EXCEL')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -168,6 +217,9 @@
 						"type": "string"
 					},
 					"WorkSheetName": {
+						"type": "string"
+					},
+					"Range": {
 						"type": "string"
 					}
 				},
@@ -188,6 +240,10 @@
 							"value": "@dataset().ContainerName",
 							"type": "Expression"
 						}
+					},
+					"range": {
+						"value": "@dataset().Range",
+						"type": "Expression"
 					},
 					"firstRowAsHeader": true
 				},
@@ -322,7 +378,10 @@
 				"annotations": [],
 				"type": "SnowflakeV2Table",
 				"schema": [],
-				"typeProperties": {}
+				"typeProperties": {
+					"schema": "RAW",
+					"table": "BENNEVAP__KENDRA_OPERATING"
+				}
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/linkedServices/LS_Snowflake')]"
@@ -389,6 +448,282 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/linkedServices/LS_KeyVault')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/BeneVap')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Get Metadata1",
+						"type": "GetMetadata",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataset": {
+								"referenceName": "DS_LANDING_EXCEL",
+								"type": "DatasetReference",
+								"parameters": {
+									"ContainerName": "benevap",
+									"FileName": {
+										"value": "@coalesce(null)",
+										"type": "Expression"
+									},
+									"WorkSheetName": "@coalesce(null)",
+									"Range": "@coalesce(null)"
+								}
+							},
+							"fieldList": [
+								"childItems"
+							],
+							"storeSettings": {
+								"type": "AzureBlobStorageReadSettings",
+								"recursive": true,
+								"enablePartitionDiscovery": false
+							}
+						}
+					},
+					{
+						"name": "ForEach1",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "Get Metadata1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('Get Metadata1').output.childItems",
+								"type": "Expression"
+							},
+							"activities": [
+								{
+									"name": "Copy data1",
+									"type": "Copy",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "ExcelSource",
+											"storeSettings": {
+												"type": "AzureBlobStorageReadSettings",
+												"recursive": true,
+												"enablePartitionDiscovery": false
+											}
+										},
+										"sink": {
+											"type": "SnowflakeV2Sink",
+											"importSettings": {
+												"type": "SnowflakeImportCopyCommand"
+											}
+										},
+										"enableStaging": true,
+										"stagingSettings": {
+											"linkedServiceName": {
+												"referenceName": "LS_Landing",
+												"type": "LinkedServiceReference"
+											},
+											"path": "benevap"
+										},
+										"translator": {
+											"type": "TabularTranslator",
+											"mappings": [
+												{
+													"source": {
+														"name": "Timestamp",
+														"type": "String"
+													},
+													"sink": {
+														"name": "TIMESTAMP",
+														"type": "DateTime"
+													}
+												},
+												{
+													"source": {
+														"name": "Daily Influent (L/d)",
+														"type": "String"
+													},
+													"sink": {
+														"name": "DAILY_INFLUENT",
+														"type": "Int64"
+													}
+												},
+												{
+													"source": {
+														"name": "Daily Evap (L/d)",
+														"type": "String"
+													},
+													"sink": {
+														"name": "DAILY_EVAP",
+														"type": "Int64"
+													}
+												},
+												{
+													"source": {
+														"name": "Antifoam Vol (L/d)",
+														"type": "String"
+													},
+													"sink": {
+														"name": "ANTIFOAM_VOL",
+														"type": "Int64"
+													}
+												},
+												{
+													"source": {
+														"name": "Up-Time (h.h)",
+														"type": "String"
+													},
+													"sink": {
+														"name": "UP_TIME",
+														"type": "Double"
+													}
+												},
+												{
+													"source": {
+														"name": "Vessel Temp (°C)",
+														"type": "String"
+													},
+													"sink": {
+														"name": "VESSEL_TEMP",
+														"type": "Double"
+													}
+												},
+												{
+													"source": {
+														"name": "Disch Vol (L/d)",
+														"type": "String"
+													},
+													"sink": {
+														"name": "DISCH_VOL",
+														"type": "Int64"
+													}
+												},
+												{
+													"source": {
+														"name": "Fuel Cumulative (SCMD)",
+														"type": "String"
+													},
+													"sink": {
+														"name": "FUEL_CUMULATIVE",
+														"type": "Int64"
+													}
+												}
+											]
+										}
+									},
+									"inputs": [
+										{
+											"referenceName": "DS_LANDING_EXCEL",
+											"type": "DatasetReference",
+											"parameters": {
+												"ContainerName": "benevap",
+												"FileName": {
+													"value": "@item().name",
+													"type": "Expression"
+												},
+												"WorkSheetName": {
+													"value": "Sheet1",
+													"type": "Expression"
+												},
+												"Range": "A4:I1048576"
+											}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "DS_SNOWFLAKE",
+											"type": "DatasetReference",
+											"parameters": {}
+										}
+									]
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/DS_LANDING_EXCEL')]",
+				"[concat(variables('factoryId'), '/datasets/DS_SNOWFLAKE')]",
+				"[concat(variables('factoryId'), '/linkedServices/LS_Landing')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/EMS')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Get Metadata1",
+						"type": "GetMetadata",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataset": {
+								"referenceName": "DS_LANDING_CSV",
+								"type": "DatasetReference",
+								"parameters": {
+									"ContainerName": "ems",
+									"RelativePath": {
+										"value": "@coalesce(null)",
+										"type": "Expression"
+									},
+									"FileName": "@coalesce(null)"
+								}
+							},
+							"fieldList": [
+								"childItems"
+							],
+							"storeSettings": {
+								"type": "AzureBlobStorageReadSettings",
+								"recursive": true,
+								"enablePartitionDiscovery": false
+							},
+							"formatSettings": {
+								"type": "DelimitedTextReadSettings"
+							}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/DS_LANDING_CSV')]"
 			]
 		},
 		{

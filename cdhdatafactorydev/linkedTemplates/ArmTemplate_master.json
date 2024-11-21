@@ -53,7 +53,7 @@
 		},
 		"LS_Snowflake_properties_typeProperties_database": {
 			"type": "string",
-			"defaultValue": "RAW"
+			"defaultValue": "DEV"
 		},
 		"LS_Wastetrack1_properties_typeProperties_url": {
 			"type": "string",
