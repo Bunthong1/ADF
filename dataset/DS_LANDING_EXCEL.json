@@ -41,7 +41,7 @@
 				"value": "@dataset().Range",
 				"type": "Expression"
 			},
-			"firstRowAsHeader": false
+			"firstRowAsHeader": true
 		},
 		"schema": []
 	},
