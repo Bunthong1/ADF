@@ -8,10 +8,10 @@
 			"authenticationType": "Basic",
 			"accountIdentifier": "uo67947.australia-east.azure",
 			"user": "bunthong",
-			"database": "RAW",
+			"database": "DEV",
 			"warehouse": "COMPUTE_WH",
 			"role": "ACCOUNTADMIN",
-			"encryptedCredential": "ew0KICAiVmVyc2lvbiI6ICIyMDE3LTExLTMwIiwNCiAgIlByb3RlY3Rpb25Nb2RlIjogIktleSIsDQogICJTZWNyZXRDb250ZW50VHlwZSI6ICJQbGFpbnRleHQiLA0KICAiQ3JlZGVudGlhbElkIjogIkRBVEFGQUNUT1JZQEU2QjkyMkQxLTZGMEItNEY5Ni1COUUxLTJCMDBEQzlDMzcyM18yMGUxN2NkNC1lZGZiLTQwZWQtYjJlNS0zMWJmN2E2NDRmMDEiDQp9"
+			"encryptedCredential": "ew0KICAiVmVyc2lvbiI6ICIyMDE3LTExLTMwIiwNCiAgIlByb3RlY3Rpb25Nb2RlIjogIktleSIsDQogICJTZWNyZXRDb250ZW50VHlwZSI6ICJQbGFpbnRleHQiLA0KICAiQ3JlZGVudGlhbElkIjogIkRBVEFGQUNUT1JZQEU2QjkyMkQxLTZGMEItNEY5Ni1COUUxLTJCMDBEQzlDMzcyM180NDA1YTUxZC1iYWE2LTQ4NjUtYjFiZS0zMzNlYjRhN2YxZGEiDQp9"
 		}
 	}
 }
