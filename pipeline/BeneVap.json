@@ -19,7 +19,12 @@
 						"referenceName": "DS_LANDING_EXCEL",
 						"type": "DatasetReference",
 						"parameters": {
-							"ContainerName": "benevap"
+							"ContainerName": "benevap",
+							"FileName": {
+								"value": "@coalesce(null)",
+								"type": "Expression"
+							},
+							"WorkSheetName": "@coalesce(null)"
 						}
 					},
 					"fieldList": [],
