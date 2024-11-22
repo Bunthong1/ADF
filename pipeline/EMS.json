@@ -84,7 +84,7 @@
 										{
 											"name": "FILE_ID",
 											"value": {
-												"value": "@activity('Lookup1').output.firstRow",
+												"value": "@activity('Lookup1').output.firstRow.Prop_8",
 												"type": "Expression"
 											}
 										}
