@@ -89,7 +89,7 @@
 										"referenceName": "LS_Landing",
 										"type": "LinkedServiceReference"
 									},
-									"path": "benevap"
+									"path": "weighbridge"
 								}
 							},
 							"inputs": [
@@ -103,13 +103,10 @@
 											"type": "Expression"
 										},
 										"WorkSheetName": {
-											"value": "Sheet1",
+											"value": "@replace(replace(item().name,'.xlsx',''),' ', '_')",
 											"type": "Expression"
 										},
-										"Range": {
-											"value": "@coalesce(null)",
-											"type": "Expression"
-										}
+										"Range": "@coalesce(null)"
 									}
 								}
 							],
@@ -118,7 +115,10 @@
 									"referenceName": "DS_SNOWFLAKE",
 									"type": "DatasetReference",
 									"parameters": {
-										"TableName": "BENNEVAP__KENDRA_OPERATING"
+										"TableName": {
+											"value": "@concat('WEIGHBRIDGE__',replace(item().name, ' ', '_'))",
+											"type": "Expression"
+										}
 									}
 								}
 							]
