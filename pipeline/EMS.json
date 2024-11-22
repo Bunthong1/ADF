@@ -102,7 +102,10 @@
 								"sink": {
 									"type": "SnowflakeV2Sink",
 									"importSettings": {
-										"type": "SnowflakeImportCopyCommand"
+										"type": "SnowflakeImportCopyCommand",
+										"additionalFormatOptions": {
+											"DATE_FORMAT": "'MM/DD/YYYY'"
+										}
 									}
 								},
 								"enableStaging": true,
@@ -148,7 +151,8 @@
 										},
 										{
 											"source": {
-												"type": "Date",
+												"type": "String",
+												"format": "MM/dd/yyyy",
 												"ordinal": 5
 											},
 											"sink": {
