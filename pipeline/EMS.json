@@ -94,7 +94,20 @@
 										"skipLineCount": 1
 									}
 								},
-								"enableStaging": false
+								"sink": {
+									"type": "SnowflakeV2Sink",
+									"importSettings": {
+										"type": "SnowflakeImportCopyCommand"
+									}
+								},
+								"enableStaging": true,
+								"stagingSettings": {
+									"linkedServiceName": {
+										"referenceName": "LS_Landing",
+										"type": "LinkedServiceReference"
+									},
+									"path": "ems"
+								}
 							},
 							"inputs": [
 								{
@@ -110,6 +123,15 @@
 											"value": "@item().name",
 											"type": "Expression"
 										}
+									}
+								}
+							],
+							"outputs": [
+								{
+									"referenceName": "DS_SNOWFLAKE",
+									"type": "DatasetReference",
+									"parameters": {
+										"TableName": "EMS__METERING_RECORD"
 									}
 								}
 							]
@@ -153,6 +175,37 @@
 										}
 									}
 								}
+							}
+						},
+						{
+							"name": "Data flow1",
+							"type": "ExecuteDataFlow",
+							"dependsOn": [
+								{
+									"activity": "Copy data1",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"dataflow": {
+									"referenceName": "Copy EMS Header Data",
+									"type": "DataFlowReference"
+								},
+								"compute": {
+									"coreCount": 8,
+									"computeType": "General"
+								},
+								"traceLevel": "Fine"
 							}
 						}
 					]
