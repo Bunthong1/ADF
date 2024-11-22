@@ -90,91 +90,6 @@
 										"type": "LinkedServiceReference"
 									},
 									"path": "benevap"
-								},
-								"translator": {
-									"type": "TabularTranslator",
-									"mappings": [
-										{
-											"source": {
-												"name": "Timestamp",
-												"type": "String"
-											},
-											"sink": {
-												"name": "TIMESTAMP",
-												"type": "DateTime"
-											}
-										},
-										{
-											"source": {
-												"name": "Daily Influent (L/d)",
-												"type": "String"
-											},
-											"sink": {
-												"name": "DAILY_INFLUENT",
-												"type": "Int64"
-											}
-										},
-										{
-											"source": {
-												"name": "Daily Evap (L/d)",
-												"type": "String"
-											},
-											"sink": {
-												"name": "DAILY_EVAP",
-												"type": "Int64"
-											}
-										},
-										{
-											"source": {
-												"name": "Antifoam Vol (L/d)",
-												"type": "String"
-											},
-											"sink": {
-												"name": "ANTIFOAM_VOL",
-												"type": "Int64"
-											}
-										},
-										{
-											"source": {
-												"name": "Up-Time (h.h)",
-												"type": "String"
-											},
-											"sink": {
-												"name": "UP_TIME",
-												"type": "Double"
-											}
-										},
-										{
-											"source": {
-												"name": "Vessel Temp (°C)",
-												"type": "String"
-											},
-											"sink": {
-												"name": "VESSEL_TEMP",
-												"type": "Double"
-											}
-										},
-										{
-											"source": {
-												"name": "Disch Vol (L/d)",
-												"type": "String"
-											},
-											"sink": {
-												"name": "DISCH_VOL",
-												"type": "Int64"
-											}
-										},
-										{
-											"source": {
-												"name": "Fuel Cumulative (SCMD)",
-												"type": "String"
-											},
-											"sink": {
-												"name": "FUEL_CUMULATIVE",
-												"type": "Int64"
-											}
-										}
-									]
 								}
 							},
 							"inputs": [
@@ -182,7 +97,7 @@
 									"referenceName": "DS_LANDING_EXCEL",
 									"type": "DatasetReference",
 									"parameters": {
-										"ContainerName": "benevap",
+										"ContainerName": "weighbridge",
 										"FileName": {
 											"value": "@item().name",
 											"type": "Expression"
@@ -191,7 +106,10 @@
 											"value": "Sheet1",
 											"type": "Expression"
 										},
-										"Range": "A4:I1048576"
+										"Range": {
+											"value": "@coalesce(null)",
+											"type": "Expression"
+										}
 									}
 								}
 							],

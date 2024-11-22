@@ -84,7 +84,7 @@
 				"          SENDER as string,",
 				"          SENT_ON_BEHALF_OF as string,",
 				"          RECIPIENT as string,",
-				"          REPORT_RUN_DATE as date,",
+				"          REPORT_RUN_DATE as string,",
 				"          REPORT_RUN_TIME as string,",
 				"          FILE_ID as string,",
 				"          DETAIL_RECORD_COUNT as decimal(38,0),",
