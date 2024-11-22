@@ -89,21 +89,7 @@
 				"     store: 'snowflakeV2',",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true,",
-				"     stageInsert: true,",
-				"     mapColumn(",
-				"          FILE_TYPE,",
-				"          EIEP_Version,",
-				"          SENDER,",
-				"          SEND_ON_BEHLF_OF,",
-				"          RECIPIENT,",
-				"          REPORT_RUN_DATE,",
-				"          FILE_ID,",
-				"          REPORT_RUN_TIME,",
-				"          DETAIL_RECORD_COUNT,",
-				"          REPORT_MONTH,",
-				"          UTILITY_TYPE,",
-				"          FILE_STATUS",
-				"     )) ~> sink1"
+				"     stageInsert: true) ~> sink1"
 			]
 		}
 	}
