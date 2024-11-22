@@ -101,6 +101,7 @@
 								},
 								"sink": {
 									"type": "SnowflakeV2Sink",
+									"preCopyScript": "ALTER SESSION SET DATE_INPUT_FORMAT = 'DD/MM/YYYY';",
 									"importSettings": {
 										"type": "SnowflakeImportCopyCommand"
 									}
