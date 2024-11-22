@@ -80,10 +80,15 @@
 							"typeProperties": {
 								"source": {
 									"type": "DelimitedTextSource",
-									"additionalColumns": {
-										"type": "Expression",
-										"value": "@activity('Lookup1').output.firstRow.Prop_8"
-									},
+									"additionalColumns": [
+										{
+											"name": "FILE_ID",
+											"value": {
+												"value": "@activity('Lookup1').output.firstRow",
+												"type": "Expression"
+											}
+										}
+									],
 									"storeSettings": {
 										"type": "AzureBlobStorageReadSettings",
 										"recursive": true,
@@ -107,6 +112,111 @@
 										"type": "LinkedServiceReference"
 									},
 									"path": "ems"
+								},
+								"translator": {
+									"type": "TabularTranslator",
+									"mappings": [
+										{
+											"source": {
+												"type": "String",
+												"ordinal": 2
+											},
+											"sink": {
+												"name": "ICP_INDETIFIER",
+												"type": "String"
+											}
+										},
+										{
+											"source": {
+												"type": "String",
+												"ordinal": 3
+											},
+											"sink": {
+												"name": "DATA_STREAM_IDENTIFIER",
+												"type": "String"
+											}
+										},
+										{
+											"source": {
+												"type": "String",
+												"ordinal": 4
+											},
+											"sink": {
+												"name": "READING_TYPE",
+												"type": "String"
+											}
+										},
+										{
+											"source": {
+												"type": "String",
+												"ordinal": 5
+											},
+											"sink": {
+												"name": "MEASURE_DATE",
+												"type": "DateTime"
+											}
+										},
+										{
+											"source": {
+												"type": "String",
+												"ordinal": 6
+											},
+											"sink": {
+												"name": "TRADING_PERIOD",
+												"type": "Int64"
+											}
+										},
+										{
+											"source": {
+												"type": "String",
+												"ordinal": 7
+											},
+											"sink": {
+												"name": "ACTIVE_ENERGY",
+												"type": "Double"
+											}
+										},
+										{
+											"source": {
+												"type": "String",
+												"ordinal": 8
+											},
+											"sink": {
+												"name": "REACTIVE_ENERGY",
+												"type": "Double"
+											}
+										},
+										{
+											"source": {
+												"type": "String",
+												"ordinal": 9
+											},
+											"sink": {
+												"name": "APPARENT_ENERGY",
+												"type": "Double"
+											}
+										},
+										{
+											"source": {
+												"type": "String",
+												"ordinal": 10
+											},
+											"sink": {
+												"name": "ENERGY_FLOW_DIRECTION",
+												"type": "String"
+											}
+										},
+										{
+											"source": {
+												"name": "FILE_ID",
+												"type": "String"
+											},
+											"sink": {
+												"name": "FILE_ID",
+												"type": "Int64"
+											}
+										}
+									]
 								}
 							},
 							"inputs": [
