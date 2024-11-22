@@ -1,6 +1,9 @@
 {
-	"name": "dataflow1",
+	"name": "Copy EMS Header Data",
 	"properties": {
+		"folder": {
+			"name": "EMS"
+		},
 		"type": "MappingDataFlow",
 		"typeProperties": {
 			"sources": [
