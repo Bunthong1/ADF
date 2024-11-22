@@ -96,7 +96,112 @@
 										"type": "SnowflakeImportCopyCommand"
 									}
 								},
-								"enableStaging": false
+								"enableStaging": false,
+								"translator": {
+									"type": "TabularTranslator",
+									"mappings": [
+										{
+											"source": {
+												"type": "String",
+												"ordinal": 1
+											},
+											"sink": {
+												"name": "ICP_INDETIFIER",
+												"type": "String"
+											}
+										},
+										{
+											"source": {
+												"type": "String",
+												"ordinal": 2
+											},
+											"sink": {
+												"name": "DATA_STREAM_IDENTIFIER",
+												"type": "String"
+											}
+										},
+										{
+											"source": {
+												"type": "String",
+												"ordinal": 3
+											},
+											"sink": {
+												"name": "READING_TYPE",
+												"type": "String"
+											}
+										},
+										{
+											"source": {
+												"type": "String",
+												"ordinal": 4
+											},
+											"sink": {
+												"name": "MEASURE_DATE",
+												"type": "DateTime"
+											}
+										},
+										{
+											"source": {
+												"type": "String",
+												"ordinal": 4
+											},
+											"sink": {
+												"name": "TRADING_PERIOD",
+												"type": "Int64"
+											}
+										},
+										{
+											"source": {
+												"type": "String",
+												"ordinal": 5
+											},
+											"sink": {
+												"name": "ACTIVE_ENERGY",
+												"type": "Double"
+											}
+										},
+										{
+											"source": {
+												"type": "String",
+												"ordinal": 6
+											},
+											"sink": {
+												"name": "REACTIVE_ENERGY",
+												"type": "Double"
+											}
+										},
+										{
+											"source": {
+												"type": "String",
+												"ordinal": 7
+											},
+											"sink": {
+												"name": "APPARENT_ENERGY",
+												"type": "Double"
+											}
+										},
+										{
+											"source": {
+												"type": "String",
+												"ordinal": 8
+											},
+											"sink": {
+												"name": "ENERGY_FLOW_DIRECTION",
+												"type": "String"
+											}
+										},
+										{
+											"source": {
+												"type": "String",
+												"ordinal": 9
+											},
+											"sink": {
+												"name": "DATA_STREAM_TYPE",
+												"type": "String"
+											}
+										}
+									]
+								}
 							},
 							"inputs": [
 								{
@@ -115,7 +220,10 @@
 							"outputs": [
 								{
 									"referenceName": "DS_SNOWFLAKE",
-									"type": "DatasetReference"
+									"type": "DatasetReference",
+									"parameters": {
+										"TableName": "EMS__METERING_RECORD"
+									}
 								}
 							]
 						},
