@@ -116,7 +116,7 @@
 									"type": "DatasetReference",
 									"parameters": {
 										"TableName": {
-											"value": "@toUpper(concat('WEIGHBRIDGE__',replace(item().name, ' ', '_')))",
+											"value": "@toUpper(concat('WEIGHBRIDGE__',replace(replace(item().name,'.xlsx',''),' ', '_')))",
 											"type": "Expression"
 										}
 									}
