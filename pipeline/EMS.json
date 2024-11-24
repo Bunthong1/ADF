@@ -61,6 +61,8 @@
 						{
 							"name": "Copy data1",
 							"type": "Copy",
+							"state": "Inactive",
+							"onInactiveMarkAs": "Succeeded",
 							"dependsOn": [
 								{
 									"activity": "Lookup1",
@@ -80,6 +82,15 @@
 							"typeProperties": {
 								"source": {
 									"type": "DelimitedTextSource",
+									"additionalColumns": [
+										{
+											"name": "FILE_ID",
+											"value": {
+												"value": "@activity('Lookup1').output.firstRow.Prop_8",
+												"type": "Expression"
+											}
+										}
+									],
 									"storeSettings": {
 										"type": "AzureBlobStorageReadSettings",
 										"recursive": true,
@@ -93,17 +104,27 @@
 								"sink": {
 									"type": "SnowflakeV2Sink",
 									"importSettings": {
-										"type": "SnowflakeImportCopyCommand"
+										"type": "SnowflakeImportCopyCommand",
+										"additionalFormatOptions": {
+											"DATE_FORMAT": "'MM/DD/YYYY'"
+										}
 									}
 								},
-								"enableStaging": false,
+								"enableStaging": true,
+								"stagingSettings": {
+									"linkedServiceName": {
+										"referenceName": "LS_Landing",
+										"type": "LinkedServiceReference"
+									},
+									"path": "ems"
+								},
 								"translator": {
 									"type": "TabularTranslator",
 									"mappings": [
 										{
 											"source": {
 												"type": "String",
-												"ordinal": 1
+												"ordinal": 2
 											},
 											"sink": {
 												"name": "ICP_INDETIFIER",
@@ -113,7 +134,7 @@
 										{
 											"source": {
 												"type": "String",
-												"ordinal": 2
+												"ordinal": 3
 											},
 											"sink": {
 												"name": "DATA_STREAM_IDENTIFIER",
@@ -123,7 +144,7 @@
 										{
 											"source": {
 												"type": "String",
-												"ordinal": 3
+												"ordinal": 4
 											},
 											"sink": {
 												"name": "READING_TYPE",
@@ -133,7 +154,8 @@
 										{
 											"source": {
 												"type": "String",
-												"ordinal": 4
+												"format": "MM/dd/yyyy",
+												"ordinal": 5
 											},
 											"sink": {
 												"name": "MEASURE_DATE",
@@ -143,7 +165,7 @@
 										{
 											"source": {
 												"type": "String",
-												"ordinal": 4
+												"ordinal": 6
 											},
 											"sink": {
 												"name": "TRADING_PERIOD",
@@ -153,7 +175,7 @@
 										{
 											"source": {
 												"type": "String",
-												"ordinal": 5
+												"ordinal": 7
 											},
 											"sink": {
 												"name": "ACTIVE_ENERGY",
@@ -163,7 +185,7 @@
 										{
 											"source": {
 												"type": "String",
-												"ordinal": 6
+												"ordinal": 8
 											},
 											"sink": {
 												"name": "REACTIVE_ENERGY",
@@ -173,7 +195,7 @@
 										{
 											"source": {
 												"type": "String",
-												"ordinal": 7
+												"ordinal": 9
 											},
 											"sink": {
 												"name": "APPARENT_ENERGY",
@@ -183,7 +205,7 @@
 										{
 											"source": {
 												"type": "String",
-												"ordinal": 8
+												"ordinal": 10
 											},
 											"sink": {
 												"name": "ENERGY_FLOW_DIRECTION",
@@ -192,12 +214,12 @@
 										},
 										{
 											"source": {
-												"type": "String",
-												"ordinal": 9
+												"name": "FILE_ID",
+												"type": "String"
 											},
 											"sink": {
-												"name": "DATA_STREAM_TYPE",
-												"type": "String"
+												"name": "FILE_ID",
+												"type": "Int64"
 											}
 										}
 									]
@@ -209,7 +231,10 @@
 									"type": "DatasetReference",
 									"parameters": {
 										"ContainerName": "ems",
-										"RelativePath": "@coalesce(null)",
+										"RelativePath": {
+											"value": "@coalesce(null)",
+											"type": "Expression"
+										},
 										"FileName": {
 											"value": "@item().name",
 											"type": "Expression"
@@ -230,6 +255,8 @@
 						{
 							"name": "Lookup1",
 							"type": "Lookup",
+							"state": "Inactive",
+							"onInactiveMarkAs": "Succeeded",
 							"dependsOn": [],
 							"policy": {
 								"timeout": "0.12:00:00",
@@ -256,13 +283,50 @@
 									"type": "DatasetReference",
 									"parameters": {
 										"ContainerName": "ems",
-										"RelativePath": "@coalesce(null)",
+										"RelativePath": {
+											"value": "@coalesce(null)",
+											"type": "Expression"
+										},
 										"FileName": {
 											"value": "@item().name",
 											"type": "Expression"
 										}
 									}
 								}
+							}
+						},
+						{
+							"name": "Data flow1",
+							"type": "ExecuteDataFlow",
+							"dependsOn": [
+								{
+									"activity": "Copy data1",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"dataflow": {
+									"referenceName": "Copy EMS Header Data",
+									"type": "DataFlowReference"
+								},
+								"staging": {
+									"folderPath": "ems"
+								},
+								"compute": {
+									"coreCount": 8,
+									"computeType": "General"
+								},
+								"traceLevel": "Fine"
 							}
 						}
 					]

@@ -1,0 +1,124 @@
+{
+	"name": "Copy EMS Header Data",
+	"properties": {
+		"folder": {
+			"name": "EMS"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"linkedService": {
+						"referenceName": "LS_Landing",
+						"type": "LinkedServiceReference"
+					},
+					"name": "source1"
+				}
+			],
+			"sinks": [
+				{
+					"linkedService": {
+						"referenceName": "LS_Snowflake",
+						"type": "LinkedServiceReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "filter2"
+				},
+				{
+					"name": "select1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          {_col0_} as string,",
+				"          {_col1_} as string,",
+				"          {_col2_} as string,",
+				"          {_col3_} as string,",
+				"          {_col4_} as string,",
+				"          {_col5_} as string,",
+				"          {_col6_} as string,",
+				"          {_col7_} as string,",
+				"          {_col8_} as integer,",
+				"          {_col9_} as string,",
+				"          {_col10_} as integer,",
+				"          {_col11_} as string,",
+				"          {_col12_} as string",
+				"     ),",
+				"     useSchema: false,",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     format: 'delimited',",
+				"     container: 'ems',",
+				"     fileName: 'CYPH_E_MPOW_ICPHH_202402_20240214_0000337308MP6A3_M01.csv',",
+				"     columnDelimiter: ',',",
+				"     escapeChar: '\\\\',",
+				"     quoteChar: '\\\"',",
+				"     columnNamesAsHeader: false) ~> source1",
+				"source1 filter(equals({_col0_}, 'HDR')) ~> filter2",
+				"filter2 select(mapColumn(",
+				"          FILE_TYPE = {_col1_},",
+				"          EIEP_Version = {_col2_},",
+				"          SENDER = {_col3_},",
+				"          SEND_ON_BEHLF_OF = {_col4_},",
+				"          RECIPIENT = {_col5_},",
+				"          REPORT_RUN_DATE = {_col6_},",
+				"          REPORT_RUN_TIME = {_col7_},",
+				"          FILE_ID = {_col8_},",
+				"          DETAIL_RECORD_COUNT = {_col9_},",
+				"          REPORT_MONTH = {_col10_},",
+				"          UTILITY_TYPE = {_col11_},",
+				"          FILE_STATUS = {_col12_}",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select1",
+				"select1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          FILE_TYPE as string,",
+				"          EIEP_VERSION as string,",
+				"          SENDER as string,",
+				"          SENT_ON_BEHALF_OF as string,",
+				"          RECIPIENT as string,",
+				"          REPORT_RUN_DATE as string,",
+				"          REPORT_RUN_TIME as string,",
+				"          FILE_ID as string,",
+				"          DETAIL_RECORD_COUNT as decimal(38,0),",
+				"          REPORT_MONTH as string,",
+				"          UTILITY_TYPE as string,",
+				"          FILE_STATUS as string",
+				"     ),",
+				"     format: 'table',",
+				"     tableName: 'EMS__METERING_RECORD_INFO',",
+				"     schemaName: 'RAW',",
+				"     deletable: false,",
+				"     insertable: true,",
+				"     updateable: false,",
+				"     upsertable: false,",
+				"     store: 'snowflake',",
+				"     store: 'snowflakeV2',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     stageInsert: true,",
+				"     mapColumn(",
+				"          FILE_TYPE,",
+				"          EIEP_VERSION = EIEP_Version,",
+				"          SENDER,",
+				"          SENT_ON_BEHALF_OF = SEND_ON_BEHLF_OF,",
+				"          RECIPIENT,",
+				"          REPORT_RUN_DATE,",
+				"          REPORT_RUN_TIME,",
+				"          FILE_ID,",
+				"          DETAIL_RECORD_COUNT,",
+				"          REPORT_MONTH,",
+				"          UTILITY_TYPE,",
+				"          FILE_STATUS",
+				"     )) ~> sink1"
+			]
+		}
+	}
+}

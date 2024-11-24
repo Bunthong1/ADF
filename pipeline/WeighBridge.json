@@ -1,0 +1,460 @@
+{
+	"name": "WeighBridge",
+	"properties": {
+		"activities": [
+			{
+				"name": "Get Metadata1",
+				"type": "GetMetadata",
+				"state": "Inactive",
+				"onInactiveMarkAs": "Succeeded",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataset": {
+						"referenceName": "DS_LANDING_EXCEL",
+						"type": "DatasetReference",
+						"parameters": {
+							"ContainerName": "weighbridge",
+							"FileName": {
+								"value": "@coalesce(null)",
+								"type": "Expression"
+							},
+							"WorkSheetName": "@coalesce(null)",
+							"Range": "@coalesce(null)"
+						}
+					},
+					"fieldList": [
+						"childItems"
+					],
+					"storeSettings": {
+						"type": "AzureBlobStorageReadSettings",
+						"recursive": true,
+						"enablePartitionDiscovery": false
+					}
+				}
+			},
+			{
+				"name": "ForEach1",
+				"type": "ForEach",
+				"state": "Inactive",
+				"onInactiveMarkAs": "Succeeded",
+				"dependsOn": [
+					{
+						"activity": "Get Metadata1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('Get Metadata1').output.childItems",
+						"type": "Expression"
+					},
+					"activities": [
+						{
+							"name": "Copy data1",
+							"type": "Copy",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "ExcelSource",
+									"storeSettings": {
+										"type": "AzureBlobStorageReadSettings",
+										"recursive": true,
+										"enablePartitionDiscovery": false
+									}
+								},
+								"sink": {
+									"type": "SnowflakeV2Sink",
+									"preCopyScript": {
+										"value": "@concat('BEGIN  USE SCHEMA RAW;  TRUNCATE TABLE ', toUpper(concat('WEIGHBRIDGE__',replace(replace(item().name,'.xlsx',''),' ', '_'))),';  END')",
+										"type": "Expression"
+									},
+									"importSettings": {
+										"type": "SnowflakeImportCopyCommand"
+									}
+								},
+								"enableStaging": true,
+								"stagingSettings": {
+									"linkedServiceName": {
+										"referenceName": "LS_Landing",
+										"type": "LinkedServiceReference"
+									},
+									"path": "weighbridge"
+								}
+							},
+							"inputs": [
+								{
+									"referenceName": "DS_LANDING_EXCEL",
+									"type": "DatasetReference",
+									"parameters": {
+										"ContainerName": "weighbridge",
+										"FileName": {
+											"value": "@item().name",
+											"type": "Expression"
+										},
+										"WorkSheetName": {
+											"value": "@replace(replace(item().name,'.xlsx',''),' ', '_')",
+											"type": "Expression"
+										},
+										"Range": "@coalesce(null)"
+									}
+								}
+							],
+							"outputs": [
+								{
+									"referenceName": "DS_SNOWFLAKE",
+									"type": "DatasetReference",
+									"parameters": {
+										"TableName": {
+											"value": "@toUpper(concat('WEIGHBRIDGE__',replace(replace(item().name,'.xlsx',''),' ', '_')))",
+											"type": "Expression"
+										}
+									}
+								}
+							]
+						}
+					]
+				}
+			},
+			{
+				"name": "Copy data1_copy1",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "ForEach1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "ExcelSource",
+						"storeSettings": {
+							"type": "AzureBlobStorageReadSettings",
+							"recursive": true,
+							"enablePartitionDiscovery": false
+						}
+					},
+					"sink": {
+						"type": "SnowflakeV2Sink",
+						"preCopyScript": {
+							"value": "@concat('BEGIN  USE SCHEMA RAW;  TRUNCATE TABLE WEIGHBRIDGE__TRANSACTION;  END')",
+							"type": "Expression"
+						},
+						"importSettings": {
+							"type": "SnowflakeImportCopyCommand"
+						}
+					},
+					"enableStaging": true,
+					"stagingSettings": {
+						"linkedServiceName": {
+							"referenceName": "LS_Landing",
+							"type": "LinkedServiceReference"
+						},
+						"path": "weighbridge"
+					},
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "Number",
+									"type": "String"
+								},
+								"sink": {
+									"name": "NUMBER",
+									"type": "Int64"
+								}
+							},
+							{
+								"source": {
+									"name": "Site Id",
+									"type": "String"
+								},
+								"sink": {
+									"name": "SITE_ID",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "Weigh Type",
+									"type": "String"
+								},
+								"sink": {
+									"name": "WEIGH_TYPE",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "Customer Id",
+									"type": "String"
+								},
+								"sink": {
+									"name": "CUSTOMER_ID",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "Vehicle Tag Id",
+									"type": "String"
+								},
+								"sink": {
+									"name": "VEHICLE_TAG_ID",
+									"type": "Int64"
+								}
+							},
+							{
+								"source": {
+									"name": "Trailer 1 Reg Plate",
+									"type": "String"
+								},
+								"sink": {
+									"name": "TRAILER_1_REG_PLATE",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "Trailer 2 Reg Plate",
+									"type": "String"
+								},
+								"sink": {
+									"name": "TRAILER_2_REG_PLATE",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "Date Time",
+									"type": "String"
+								},
+								"sink": {
+									"name": "DATE_TIME",
+									"type": "DateTime"
+								}
+							},
+							{
+								"source": {
+									"name": "Date Time Out",
+									"type": "String"
+								},
+								"sink": {
+									"name": "DATE_TIME_OUT",
+									"type": "DateTime"
+								}
+							},
+							{
+								"source": {
+									"name": "Product Id",
+									"type": "String"
+								},
+								"sink": {
+									"name": "PRODUCT_ID",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "Weight In",
+									"type": "String"
+								},
+								"sink": {
+									"name": "WEIGHT_IN",
+									"type": "Int64"
+								}
+							},
+							{
+								"source": {
+									"name": "Gross",
+									"type": "String"
+								},
+								"sink": {
+									"name": "GROSS",
+									"type": "Int64"
+								}
+							},
+							{
+								"source": {
+									"name": "Tare",
+									"type": "String"
+								},
+								"sink": {
+									"name": "TARE",
+									"type": "Int64"
+								}
+							},
+							{
+								"source": {
+									"name": "Net",
+									"type": "String"
+								},
+								"sink": {
+									"name": "NET",
+									"type": "Int64"
+								}
+							},
+							{
+								"source": {
+									"name": "Amount",
+									"type": "String"
+								},
+								"sink": {
+									"name": "AMOUNT",
+									"type": "Double"
+								}
+							},
+							{
+								"source": {
+									"name": "Bridge Too Short",
+									"type": "String"
+								},
+								"sink": {
+									"name": "BRIDGE_TOO_SHORT",
+									"type": "Boolean"
+								}
+							},
+							{
+								"source": {
+									"name": "Status",
+									"type": "String"
+								},
+								"sink": {
+									"name": "STATUS",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "Northing",
+									"type": "String"
+								},
+								"sink": {
+									"name": "NORTHING",
+									"type": "Boolean"
+								}
+							},
+							{
+								"source": {
+									"name": "Easting",
+									"type": "String"
+								},
+								"sink": {
+									"name": "EASTING",
+									"type": "Boolean"
+								}
+							},
+							{
+								"source": {
+									"name": "RL",
+									"type": "String"
+								},
+								"sink": {
+									"name": "RL",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "DisposalTime",
+									"type": "String"
+								},
+								"sink": {
+									"name": "DISPOSALTIME",
+									"type": "DateTime"
+								}
+							},
+							{
+								"source": {
+									"name": "CertifiedBurial",
+									"type": "String"
+								},
+								"sink": {
+									"name": "CERTIFIEDBURIAL",
+									"type": "Boolean"
+								}
+							},
+							{
+								"source": {
+									"name": "10TRate",
+									"type": "String"
+								},
+								"sink": {
+									"name": "RATE10T",
+									"type": "Boolean"
+								}
+							},
+							{
+								"source": {
+									"name": "ExtraHandling",
+									"type": "String"
+								},
+								"sink": {
+									"name": "EXTRAHANDLING",
+									"type": "Boolean"
+								}
+							}
+						]
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "DS_LANDING_EXCEL",
+						"type": "DatasetReference",
+						"parameters": {
+							"ContainerName": "weighbridge",
+							"FileName": "Transaction.xlsx",
+							"WorkSheetName": {
+								"value": "Transaction",
+								"type": "Expression"
+							},
+							"Range": "@coalesce(null)"
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "DS_SNOWFLAKE",
+						"type": "DatasetReference",
+						"parameters": {
+							"TableName": {
+								"value": "WEIGHBRIDGE__TRANSACTION",
+								"type": "Expression"
+							}
+						}
+					}
+				]
+			}
+		],
+		"annotations": []
+	}
+}
