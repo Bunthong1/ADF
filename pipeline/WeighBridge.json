@@ -80,7 +80,7 @@
 								"sink": {
 									"type": "SnowflakeV2Sink",
 									"preCopyScript": {
-										"value": "@concat('BEGIN \\\\n USE SCHEMA RAW; \\\\n TRUNCATE TABLE ', toUpper(concat('WEIGHBRIDGE__',replace(replace(item().name,'.xlsx',''),' ', '_'))),'; \\\\n END')",
+										"value": "@concat('BEGIN  USE SCHEMA RAW;  TRUNCATE TABLE ', toUpper(concat('WEIGHBRIDGE__',replace(replace(item().name,'.xlsx',''),' ', '_'))),';  END')",
 										"type": "Expression"
 									},
 									"importSettings": {
@@ -129,6 +129,84 @@
 						}
 					]
 				}
+			},
+			{
+				"name": "Copy data1_copy1",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "ForEach1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "ExcelSource",
+						"storeSettings": {
+							"type": "AzureBlobStorageReadSettings",
+							"recursive": true,
+							"enablePartitionDiscovery": false
+						}
+					},
+					"sink": {
+						"type": "SnowflakeV2Sink",
+						"preCopyScript": {
+							"value": "@concat('BEGIN  USE SCHEMA RAW;  TRUNCATE TABLE WEIGHBRIDGE__TRANSACTION;  END')",
+							"type": "Expression"
+						},
+						"importSettings": {
+							"type": "SnowflakeImportCopyCommand"
+						}
+					},
+					"enableStaging": true,
+					"stagingSettings": {
+						"linkedServiceName": {
+							"referenceName": "LS_Landing",
+							"type": "LinkedServiceReference"
+						},
+						"path": "weighbridge"
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "DS_LANDING_EXCEL",
+						"type": "DatasetReference",
+						"parameters": {
+							"ContainerName": "weighbridge",
+							"FileName": {
+								"value": "@item().name",
+								"type": "Expression"
+							},
+							"WorkSheetName": {
+								"value": "Transaction",
+								"type": "Expression"
+							},
+							"Range": "@coalesce(null)"
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "DS_SNOWFLAKE",
+						"type": "DatasetReference",
+						"parameters": {
+							"TableName": {
+								"value": "WEIGHBRIDGE__Transaction",
+								"type": "Expression"
+							}
+						}
+					}
+				]
 			}
 		],
 		"annotations": []
