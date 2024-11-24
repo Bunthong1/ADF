@@ -135,7 +135,7 @@
 				}
 			},
 			{
-				"name": "Copy data1_copy1",
+				"name": "Copy data1_c",
 				"type": "Copy",
 				"dependsOn": [
 					{
