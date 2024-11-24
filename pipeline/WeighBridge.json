@@ -175,6 +175,251 @@
 							"type": "LinkedServiceReference"
 						},
 						"path": "weighbridge"
+					},
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "Number",
+									"type": "String"
+								},
+								"sink": {
+									"name": "NUMBER",
+									"type": "Int64"
+								}
+							},
+							{
+								"source": {
+									"name": "Site Id",
+									"type": "String"
+								},
+								"sink": {
+									"name": "SITE_ID",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "Weigh Type",
+									"type": "String"
+								},
+								"sink": {
+									"name": "WEIGH_TYPE",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "Customer Id",
+									"type": "String"
+								},
+								"sink": {
+									"name": "CUSTOMER_ID",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "Vehicle Tag Id",
+									"type": "String"
+								},
+								"sink": {
+									"name": "VEHICLE_TAG_ID",
+									"type": "Int64"
+								}
+							},
+							{
+								"source": {
+									"name": "Trailer 1 Reg Plate",
+									"type": "String"
+								},
+								"sink": {
+									"name": "TRAILER_1_REG_PLATE",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "Trailer 2 Reg Plate",
+									"type": "String"
+								},
+								"sink": {
+									"name": "TRAILER_2_REG_PLATE",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "Date Time",
+									"type": "String"
+								},
+								"sink": {
+									"name": "DATE_TIME",
+									"type": "DateTime"
+								}
+							},
+							{
+								"source": {
+									"name": "Date Time Out",
+									"type": "String"
+								},
+								"sink": {
+									"name": "DATE_TIME_OUT",
+									"type": "DateTime"
+								}
+							},
+							{
+								"source": {
+									"name": "Product Id",
+									"type": "String"
+								},
+								"sink": {
+									"name": "PRODUCT_ID",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "Weight In",
+									"type": "String"
+								},
+								"sink": {
+									"name": "WEIGHT_IN",
+									"type": "Int64"
+								}
+							},
+							{
+								"source": {
+									"name": "Gross",
+									"type": "String"
+								},
+								"sink": {
+									"name": "GROSS",
+									"type": "Int64"
+								}
+							},
+							{
+								"source": {
+									"name": "Tare",
+									"type": "String"
+								},
+								"sink": {
+									"name": "TARE",
+									"type": "Int64"
+								}
+							},
+							{
+								"source": {
+									"name": "Net",
+									"type": "String"
+								},
+								"sink": {
+									"name": "NET",
+									"type": "Int64"
+								}
+							},
+							{
+								"source": {
+									"name": "Amount",
+									"type": "String"
+								},
+								"sink": {
+									"name": "AMOUNT",
+									"type": "Double"
+								}
+							},
+							{
+								"source": {
+									"name": "Bridge Too Short",
+									"type": "String"
+								},
+								"sink": {
+									"name": "BRIDGE_TOO_SHORT",
+									"type": "Boolean"
+								}
+							},
+							{
+								"source": {
+									"name": "Status",
+									"type": "String"
+								},
+								"sink": {
+									"name": "STATUS",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "Northing",
+									"type": "String"
+								},
+								"sink": {
+									"name": "NORTHING",
+									"type": "Boolean"
+								}
+							},
+							{
+								"source": {
+									"name": "Easting",
+									"type": "String"
+								},
+								"sink": {
+									"name": "EASTING",
+									"type": "Boolean"
+								}
+							},
+							{
+								"source": {
+									"name": "RL",
+									"type": "String"
+								},
+								"sink": {
+									"name": "RL",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "DisposalTime",
+									"type": "String"
+								},
+								"sink": {
+									"name": "DISPOSALTIME",
+									"type": "DateTime"
+								}
+							},
+							{
+								"source": {
+									"name": "CertifiedBurial",
+									"type": "String"
+								},
+								"sink": {
+									"name": "CERTIFIEDBURIAL",
+									"type": "Boolean"
+								}
+							},
+							{
+								"source": {
+									"name": "10TRate",
+									"type": "String"
+								},
+								"sink": {
+									"name": "RATE10T",
+									"type": "Boolean"
+								}
+							},
+							{
+								"source": {
+									"name": "ExtraHandling",
+									"type": "String"
+								},
+								"sink": {
+									"name": "EXTRAHANDLING",
+									"type": "Boolean"
+								}
+							}
+						]
 					}
 				},
 				"inputs": [
