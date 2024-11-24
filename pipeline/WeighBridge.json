@@ -79,6 +79,10 @@
 								},
 								"sink": {
 									"type": "SnowflakeV2Sink",
+									"preCopyScript": {
+										"value": "@concat('TRUNCATE TABLE', toUpper(concat('WEIGHBRIDGE__',replace(replace(item().name,'.xlsx',''),' ', '_'))),';')",
+										"type": "Expression"
+									},
 									"importSettings": {
 										"type": "SnowflakeImportCopyCommand"
 									}
