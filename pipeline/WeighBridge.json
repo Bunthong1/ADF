@@ -80,7 +80,7 @@
 								"sink": {
 									"type": "SnowflakeV2Sink",
 									"preCopyScript": {
-										"value": "@concat('TRUNCATE TABLE RAW', toUpper(concat('WEIGHBRIDGE__',replace(replace(item().name,'.xlsx',''),' ', '_'))),';')",
+										"value": "@concat('BEGIN \\\\n USE SCHEMA RAW; \\n TRUNCATE TABLE ', toUpper(concat('WEIGHBRIDGE__',replace(replace(item().name,'.xlsx',''),' ', '_'))),'; \\\\n END')",
 										"type": "Expression"
 									},
 									"importSettings": {
