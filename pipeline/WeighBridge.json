@@ -201,7 +201,7 @@
 						"type": "DatasetReference",
 						"parameters": {
 							"TableName": {
-								"value": "WEIGHBRIDGE__Transaction",
+								"value": "WEIGHBRIDGE__TRANSACTION",
 								"type": "Expression"
 							}
 						}
