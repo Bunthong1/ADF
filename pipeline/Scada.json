@@ -603,8 +603,8 @@
 									"ordinal": 3
 								},
 								"sink": {
-									"name": "LEACH_FLOWRATE_AVG",
-									"type": "Double"
+									"name": "RM_PUMP_P7_DUTY",
+									"type": "Int64"
 								}
 							},
 							{
@@ -613,8 +613,8 @@
 									"ordinal": 4
 								},
 								"sink": {
-									"name": "LEACH_LEVEL_MAX",
-									"type": "Double"
+									"name": "RM_PUMP_P8_DUTY",
+									"type": "Int64"
 								}
 							},
 							{
@@ -623,8 +623,8 @@
 									"ordinal": 5
 								},
 								"sink": {
-									"name": "LEACH_PUMP_AVG",
-									"type": "Double"
+									"name": "RM_FLOW_15MIN",
+									"type": "Int64"
 								}
 							},
 							{
@@ -633,8 +633,8 @@
 									"ordinal": 6
 								},
 								"sink": {
-									"name": "LEACH_PUMP_MAX",
-									"type": "Double"
+									"name": "RM_FLOW_DAY",
+									"type": "Int64"
 								}
 							},
 							{
@@ -643,8 +643,8 @@
 									"ordinal": 7
 								},
 								"sink": {
-									"name": "LEACH_PUMP_MIN",
-									"type": "Double"
+									"name": "RM_FLOW_ALARM_MAX",
+									"type": "Int64"
 								}
 							},
 							{
@@ -653,8 +653,8 @@
 									"ordinal": 8
 								},
 								"sink": {
-									"name": "LEACH_BATTERY_MIN",
-									"type": "Double"
+									"name": "RM_PUMP_P7_ALARM_MAX",
+									"type": "Int64"
 								}
 							},
 							{
@@ -663,8 +663,8 @@
 									"ordinal": 9
 								},
 								"sink": {
-									"name": "RECIRC_FLOWRATE_AVG",
-									"type": "Double"
+									"name": "RM_PUMP_P8_ALARM_MAX",
+									"type": "Int64"
 								}
 							},
 							{
@@ -673,8 +673,8 @@
 									"ordinal": 10
 								},
 								"sink": {
-									"name": "LEACH_TEMPERATURE_AVG",
-									"type": "Double"
+									"name": "RM_FRATE_ALARM_MAX",
+									"type": "Int64"
 								}
 							},
 							{
@@ -683,7 +683,27 @@
 									"ordinal": 11
 								},
 								"sink": {
-									"name": "LEACH_VOLUME_SUM",
+									"name": "EXISITNG_TANK_LEVEL_AVG",
+									"type": "Double"
+								}
+							},
+							{
+								"source": {
+									"type": "String",
+									"ordinal": 12
+								},
+								"sink": {
+									"name": "RM_BATT_MIN",
+									"type": "Double"
+								}
+							},
+							{
+								"source": {
+									"type": "String",
+									"ordinal": 13
+								},
+								"sink": {
+									"name": "RM_PTEMP",
 									"type": "Double"
 								}
 							}
