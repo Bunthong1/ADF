@@ -319,9 +319,6 @@
 									"referenceName": "Copy EMS Header Data",
 									"type": "DataFlowReference"
 								},
-								"staging": {
-									"folderPath": "ems"
-								},
 								"compute": {
 									"coreCount": 8,
 									"computeType": "General"

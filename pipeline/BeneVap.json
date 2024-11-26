@@ -249,7 +249,14 @@
 							"type": "SnowflakeImportCopyCommand"
 						}
 					},
-					"enableStaging": false,
+					"enableStaging": true,
+					"stagingSettings": {
+						"linkedServiceName": {
+							"referenceName": "LS_Landing",
+							"type": "LinkedServiceReference"
+						},
+						"path": "benevap"
+					},
 					"translator": {
 						"type": "TabularTranslator",
 						"mappings": [
