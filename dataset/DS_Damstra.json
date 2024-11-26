@@ -1,0 +1,82 @@
+{
+	"name": "DS_Damstra",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_Damstra",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "EventId",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "EventDate",
+				"type": "date"
+			},
+			{
+				"name": "EventType",
+				"type": "nvarchar"
+			},
+			{
+				"name": "EventInjuryType",
+				"type": "varchar"
+			},
+			{
+				"name": "EventCategory",
+				"type": "varchar"
+			},
+			{
+				"name": "Environment",
+				"type": "tinyint",
+				"precision": 3
+			},
+			{
+				"name": "Notifiable",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "Fatality",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "MVA",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "EventSeverity",
+				"type": "nvarchar"
+			},
+			{
+				"name": "EventStatus",
+				"type": "varchar"
+			},
+			{
+				"name": "PersonType",
+				"type": "varchar"
+			},
+			{
+				"name": "SiteName",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Subject",
+				"type": "varchar"
+			},
+			{
+				"name": "InjuryTreatmentRequired",
+				"type": "varchar"
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "CSV_WMSites"
+		}
+	}
+}
