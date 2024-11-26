@@ -5,6 +5,8 @@
 			{
 				"name": "Get Metadata1",
 				"type": "GetMetadata",
+				"state": "Inactive",
+				"onInactiveMarkAs": "Succeeded",
 				"dependsOn": [],
 				"policy": {
 					"timeout": "0.12:00:00",
@@ -41,6 +43,8 @@
 			{
 				"name": "ForEach1",
 				"type": "ForEach",
+				"state": "Inactive",
+				"onInactiveMarkAs": "Succeeded",
 				"dependsOn": [
 					{
 						"activity": "Get Metadata1",
@@ -207,6 +211,155 @@
 						}
 					]
 				}
+			},
+			{
+				"name": "Copy data2",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "ForEach1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "JsonSource",
+						"storeSettings": {
+							"type": "AzureBlobStorageReadSettings",
+							"recursive": true,
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "JsonReadSettings"
+						}
+					},
+					"sink": {
+						"type": "SnowflakeV2Sink",
+						"importSettings": {
+							"type": "SnowflakeImportCopyCommand"
+						}
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"path": "['12']"
+								},
+								"sink": {
+									"name": "DAILY_INFLUENT",
+									"type": "Int64"
+								}
+							},
+							{
+								"source": {
+									"path": "['26']"
+								},
+								"sink": {
+									"name": "DAILY_EVAP",
+									"type": "Int64"
+								}
+							},
+							{
+								"source": {
+									"path": "['30']"
+								},
+								"sink": {
+									"name": "FUEL_VOL"
+								}
+							},
+							{
+								"source": {
+									"path": "['51']"
+								},
+								"sink": {
+									"name": "ANTIFOAM_VOL",
+									"type": "Int64"
+								}
+							},
+							{
+								"source": {
+									"path": "['55']"
+								},
+								"sink": {
+									"name": "UP_TIME",
+									"type": "Double"
+								}
+							},
+							{
+								"source": {
+									"path": "['57']"
+								},
+								"sink": {
+									"name": "VESSEL_TEMP",
+									"type": "Double"
+								}
+							},
+							{
+								"source": {
+									"path": "['64']"
+								},
+								"sink": {
+									"name": "DISCH_VOL",
+									"type": "Int64"
+								}
+							},
+							{
+								"source": {
+									"path": "['66']"
+								},
+								"sink": {
+									"name": "FUEL_CUMULATIVE",
+									"type": "Int64"
+								}
+							},
+							{
+								"source": {
+									"path": "['t_stamp']"
+								},
+								"sink": {
+									"name": "TIMESTAMP",
+									"type": "DateTime"
+								}
+							}
+						],
+						"collectionReference": "$['timeseries']"
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "DS_LANDING_JSON",
+						"type": "DatasetReference",
+						"parameters": {
+							"ContainerName": "benevap",
+							"DirectoryName": {
+								"value": "@coalesce(null)",
+								"type": "Expression"
+							},
+							"FileName": "benedata_api_response_sample_2.json"
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "DS_SNOWFLAKE",
+						"type": "DatasetReference",
+						"parameters": {
+							"TableName": "BENNEVAP__KENDRA_OPERATING"
+						}
+					}
+				]
 			}
 		],
 		"annotations": []
