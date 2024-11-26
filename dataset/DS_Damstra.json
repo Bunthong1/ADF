@@ -73,10 +73,6 @@
 				"name": "InjuryTreatmentRequired",
 				"type": "varchar"
 			}
-		],
-		"typeProperties": {
-			"schema": "dbo",
-			"table": "CSV_WMSites"
-		}
+		]
 	}
 }
