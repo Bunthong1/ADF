@@ -1,5 +1,5 @@
 {
-	"name": "DS_Damstra",
+	"name": "DS_DAMSTRA",
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "LS_Damstra",

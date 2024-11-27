@@ -24,7 +24,7 @@
 						"partitionOption": "None"
 					},
 					"dataset": {
-						"referenceName": "DS_Damstra",
+						"referenceName": "DS_DAMSTRA",
 						"type": "DatasetReference",
 						"parameters": {
 							"SchemaName": {
@@ -280,7 +280,7 @@
 							},
 							"inputs": [
 								{
-									"referenceName": "DS_Damstra",
+									"referenceName": "DS_DAMSTRA",
 									"type": "DatasetReference",
 									"parameters": {
 										"SchemaName": "dbo",
@@ -333,9 +333,15 @@
 				"userProperties": [],
 				"typeProperties": {
 					"source": {
-						"type": "AzureSqlSource",
-						"queryTimeout": "02:00:00",
-						"partitionOption": "None"
+						"type": "DelimitedTextSource",
+						"storeSettings": {
+							"type": "AzureBlobStorageReadSettings",
+							"recursive": true,
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "DelimitedTextReadSettings"
+						}
 					},
 					"sink": {
 						"type": "SnowflakeV2Sink",
@@ -343,15 +349,26 @@
 							"type": "SnowflakeImportCopyCommand"
 						}
 					},
-					"enableStaging": false
+					"enableStaging": true,
+					"stagingSettings": {
+						"linkedServiceName": {
+							"referenceName": "LS_Landing",
+							"type": "LinkedServiceReference"
+						},
+						"path": "vaultgrc"
+					}
 				},
 				"inputs": [
 					{
-						"referenceName": "DS_Damstra",
+						"referenceName": "DS_LANDING_CSV",
 						"type": "DatasetReference",
 						"parameters": {
-							"SchemaName": "dbo",
-							"TableName": "create or replace TABLE DEV.RAW."
+							"ContainerName": "vaultgrc",
+							"RelativePath": {
+								"value": "@coalesce(null)",
+								"type": "Expression"
+							},
+							"FileName": "CSV_AllEvent.csv"
 						}
 					}
 				],
@@ -360,7 +377,7 @@
 						"referenceName": "DS_SNOWFLAKE",
 						"type": "DatasetReference",
 						"parameters": {
-							"TableName": "VAULTGRC__COURSEDETAILS"
+							"TableName": "VAULTGRC__CSV_ALLEVENT"
 						}
 					}
 				]
