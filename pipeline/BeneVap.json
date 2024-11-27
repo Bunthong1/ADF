@@ -269,51 +269,91 @@
 							{
 								"source": {
 									"path": "['12']"
+								},
+								"sink": {
+									"name": "DAILY_INFLUENT",
+									"type": "Int64"
 								}
 							},
 							{
 								"source": {
 									"path": "['26']"
+								},
+								"sink": {
+									"name": "DAILY_EVAP",
+									"type": "Int64"
 								}
 							},
 							{
 								"source": {
 									"path": "['30']"
+								},
+								"sink": {
+									"name": "FUEL_VOL",
+									"type": "Int64"
 								}
 							},
 							{
 								"source": {
 									"path": "['51']"
+								},
+								"sink": {
+									"name": "ANTIFOAM_VOL",
+									"type": "Int64"
 								}
 							},
 							{
 								"source": {
 									"path": "['55']"
+								},
+								"sink": {
+									"name": "UP_TIME",
+									"type": "Double"
 								}
 							},
 							{
 								"source": {
 									"path": "['57']"
+								},
+								"sink": {
+									"name": "VESSEL_TEMP",
+									"type": "Double"
 								}
 							},
 							{
 								"source": {
 									"path": "['64']"
+								},
+								"sink": {
+									"name": "DISCH_VOL",
+									"type": "Int64"
 								}
 							},
 							{
 								"source": {
 									"path": "['66']"
+								},
+								"sink": {
+									"name": "FUEL_CUMULATIVE",
+									"type": "Int64"
 								}
 							},
 							{
 								"source": {
 									"path": "['t_stamp']"
+								},
+								"sink": {
+									"name": "TIMESTAMP",
+									"type": "DateTime"
 								}
 							},
 							{
 								"source": {
 									"path": "$['site_id']"
+								},
+								"sink": {
+									"name": "SITE_ID",
+									"type": "Int64"
 								}
 							}
 						],
