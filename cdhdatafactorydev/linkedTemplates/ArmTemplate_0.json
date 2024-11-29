@@ -375,12 +375,20 @@
 					"referenceName": "LS_Snowflake",
 					"type": "LinkedServiceReference"
 				},
+				"parameters": {
+					"TableName": {
+						"type": "string"
+					}
+				},
 				"annotations": [],
 				"type": "SnowflakeV2Table",
 				"schema": [],
 				"typeProperties": {
 					"schema": "RAW",
-					"table": "BENNEVAP__KENDRA_OPERATING"
+					"table": {
+						"value": "@dataset().TableName",
+						"type": "Expression"
+					}
 				}
 			},
 			"dependsOn": [
@@ -451,6 +459,136 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/Copy EMS Header Data')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "EMS"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"linkedService": {
+								"referenceName": "LS_Landing",
+								"type": "LinkedServiceReference"
+							},
+							"name": "source1"
+						}
+					],
+					"sinks": [
+						{
+							"linkedService": {
+								"referenceName": "LS_Snowflake",
+								"type": "LinkedServiceReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [
+						{
+							"name": "filter2"
+						},
+						{
+							"name": "select1"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          {_col0_} as string,",
+						"          {_col1_} as string,",
+						"          {_col2_} as string,",
+						"          {_col3_} as string,",
+						"          {_col4_} as string,",
+						"          {_col5_} as string,",
+						"          {_col6_} as string,",
+						"          {_col7_} as string,",
+						"          {_col8_} as integer,",
+						"          {_col9_} as string,",
+						"          {_col10_} as integer,",
+						"          {_col11_} as string,",
+						"          {_col12_} as string",
+						"     ),",
+						"     useSchema: false,",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false,",
+						"     format: 'delimited',",
+						"     container: 'ems',",
+						"     fileName: 'CYPH_E_MPOW_ICPHH_202402_20240214_0000337308MP6A3_M01.csv',",
+						"     columnDelimiter: ',',",
+						"     escapeChar: '\\\\',",
+						"     quoteChar: '\\\"',",
+						"     columnNamesAsHeader: false) ~> source1",
+						"source1 filter(equals({_col0_}, 'HDR')) ~> filter2",
+						"filter2 select(mapColumn(",
+						"          FILE_TYPE = {_col1_},",
+						"          EIEP_Version = {_col2_},",
+						"          SENDER = {_col3_},",
+						"          SEND_ON_BEHLF_OF = {_col4_},",
+						"          RECIPIENT = {_col5_},",
+						"          REPORT_RUN_DATE = {_col6_},",
+						"          REPORT_RUN_TIME = {_col7_},",
+						"          FILE_ID = {_col8_},",
+						"          DETAIL_RECORD_COUNT = {_col9_},",
+						"          REPORT_MONTH = {_col10_},",
+						"          UTILITY_TYPE = {_col11_},",
+						"          FILE_STATUS = {_col12_}",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> select1",
+						"select1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          FILE_TYPE as string,",
+						"          EIEP_VERSION as string,",
+						"          SENDER as string,",
+						"          SENT_ON_BEHALF_OF as string,",
+						"          RECIPIENT as string,",
+						"          REPORT_RUN_DATE as string,",
+						"          REPORT_RUN_TIME as string,",
+						"          FILE_ID as string,",
+						"          DETAIL_RECORD_COUNT as decimal(38,0),",
+						"          REPORT_MONTH as string,",
+						"          UTILITY_TYPE as string,",
+						"          FILE_STATUS as string",
+						"     ),",
+						"     format: 'table',",
+						"     tableName: 'EMS__METERING_RECORD_INFO',",
+						"     schemaName: 'RAW',",
+						"     deletable: false,",
+						"     insertable: true,",
+						"     updateable: false,",
+						"     upsertable: false,",
+						"     store: 'snowflake',",
+						"     store: 'snowflakeV2',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     stageInsert: true,",
+						"     mapColumn(",
+						"          FILE_TYPE,",
+						"          EIEP_VERSION = EIEP_Version,",
+						"          SENDER,",
+						"          SENT_ON_BEHALF_OF = SEND_ON_BEHLF_OF,",
+						"          RECIPIENT,",
+						"          REPORT_RUN_DATE,",
+						"          REPORT_RUN_TIME,",
+						"          FILE_ID,",
+						"          DETAIL_RECORD_COUNT,",
+						"          REPORT_MONTH,",
+						"          UTILITY_TYPE,",
+						"          FILE_STATUS",
+						"     )) ~> sink1"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/LS_Landing')]",
+				"[concat(variables('factoryId'), '/linkedServices/LS_Snowflake')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/BeneVap')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
@@ -459,6 +597,8 @@
 					{
 						"name": "Get Metadata1",
 						"type": "GetMetadata",
+						"state": "Inactive",
+						"onInactiveMarkAs": "Succeeded",
 						"dependsOn": [],
 						"policy": {
 							"timeout": "0.12:00:00",
@@ -495,6 +635,8 @@
 					{
 						"name": "ForEach1",
 						"type": "ForEach",
+						"state": "Inactive",
+						"onInactiveMarkAs": "Succeeded",
 						"dependsOn": [
 							{
 								"activity": "Get Metadata1",
@@ -653,12 +795,186 @@
 										{
 											"referenceName": "DS_SNOWFLAKE",
 											"type": "DatasetReference",
-											"parameters": {}
+											"parameters": {
+												"TableName": "BENNEVAP__KENDRA_OPERATING"
+											}
 										}
 									]
 								}
 							]
 						}
+					},
+					{
+						"name": "Copy data2",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "ForEach1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "JsonSource",
+								"additionalColumns": [
+									{
+										"name": "site_id",
+										"value": "KVL"
+									}
+								],
+								"storeSettings": {
+									"type": "AzureBlobStorageReadSettings",
+									"recursive": true,
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "JsonReadSettings"
+								}
+							},
+							"sink": {
+								"type": "SnowflakeV2Sink",
+								"importSettings": {
+									"type": "SnowflakeImportCopyCommand"
+								}
+							},
+							"enableStaging": true,
+							"stagingSettings": {
+								"linkedServiceName": {
+									"referenceName": "LS_Landing",
+									"type": "LinkedServiceReference"
+								},
+								"path": "benevap"
+							},
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"path": "[['12']"
+										},
+										"sink": {
+											"name": "DAILY_INFLUENT",
+											"type": "Int64"
+										}
+									},
+									{
+										"source": {
+											"path": "[['26']"
+										},
+										"sink": {
+											"name": "DAILY_EVAP",
+											"type": "Int64"
+										}
+									},
+									{
+										"source": {
+											"path": "[['30']"
+										},
+										"sink": {
+											"name": "FUEL_VOL",
+											"type": "Int64"
+										}
+									},
+									{
+										"source": {
+											"path": "[['51']"
+										},
+										"sink": {
+											"name": "ANTIFOAM_VOL",
+											"type": "Int64"
+										}
+									},
+									{
+										"source": {
+											"path": "[['55']"
+										},
+										"sink": {
+											"name": "UP_TIME",
+											"type": "Double"
+										}
+									},
+									{
+										"source": {
+											"path": "[['57']"
+										},
+										"sink": {
+											"name": "VESSEL_TEMP",
+											"type": "Double"
+										}
+									},
+									{
+										"source": {
+											"path": "[['64']"
+										},
+										"sink": {
+											"name": "DISCH_VOL",
+											"type": "Int64"
+										}
+									},
+									{
+										"source": {
+											"path": "[['66']"
+										},
+										"sink": {
+											"name": "FUEL_CUMULATIVE",
+											"type": "Int64"
+										}
+									},
+									{
+										"source": {
+											"path": "[['t_stamp']"
+										},
+										"sink": {
+											"name": "TIMESTAMP",
+											"type": "DateTime"
+										}
+									},
+									{
+										"source": {
+											"path": "$['site_id']"
+										},
+										"sink": {
+											"name": "SITE_ID",
+											"type": "Int64"
+										}
+									}
+								],
+								"collectionReference": "$['timeseries']"
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "DS_LANDING_JSON",
+								"type": "DatasetReference",
+								"parameters": {
+									"ContainerName": "benevap",
+									"DirectoryName": {
+										"value": "@coalesce(null)",
+										"type": "Expression"
+									},
+									"FileName": "benedata_api_response_sample_2.json"
+								}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "DS_SNOWFLAKE",
+								"type": "DatasetReference",
+								"parameters": {
+									"TableName": "BENNEVAP__KENDRA_OPERATING"
+								}
+							}
+						]
 					}
 				],
 				"policy": {
@@ -668,6 +984,7 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/DS_LANDING_EXCEL')]",
+				"[concat(variables('factoryId'), '/datasets/DS_LANDING_JSON')]",
 				"[concat(variables('factoryId'), '/datasets/DS_SNOWFLAKE')]",
 				"[concat(variables('factoryId'), '/linkedServices/LS_Landing')]"
 			]
@@ -715,6 +1032,301 @@
 								"type": "DelimitedTextReadSettings"
 							}
 						}
+					},
+					{
+						"name": "ForEach1",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "Get Metadata1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('Get Metadata1').output.childItems",
+								"type": "Expression"
+							},
+							"activities": [
+								{
+									"name": "Copy data1",
+									"type": "Copy",
+									"state": "Inactive",
+									"onInactiveMarkAs": "Succeeded",
+									"dependsOn": [
+										{
+											"activity": "Lookup1",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "DelimitedTextSource",
+											"additionalColumns": [
+												{
+													"name": "FILE_ID",
+													"value": {
+														"value": "@activity('Lookup1').output.firstRow.Prop_8",
+														"type": "Expression"
+													}
+												}
+											],
+											"storeSettings": {
+												"type": "AzureBlobStorageReadSettings",
+												"recursive": true,
+												"enablePartitionDiscovery": false
+											},
+											"formatSettings": {
+												"type": "DelimitedTextReadSettings",
+												"skipLineCount": 1
+											}
+										},
+										"sink": {
+											"type": "SnowflakeV2Sink",
+											"importSettings": {
+												"type": "SnowflakeImportCopyCommand",
+												"additionalFormatOptions": {
+													"DATE_FORMAT": "'MM/DD/YYYY'"
+												}
+											}
+										},
+										"enableStaging": true,
+										"stagingSettings": {
+											"linkedServiceName": {
+												"referenceName": "LS_Landing",
+												"type": "LinkedServiceReference"
+											},
+											"path": "ems"
+										},
+										"translator": {
+											"type": "TabularTranslator",
+											"mappings": [
+												{
+													"source": {
+														"type": "String",
+														"ordinal": 2
+													},
+													"sink": {
+														"name": "ICP_INDETIFIER",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"type": "String",
+														"ordinal": 3
+													},
+													"sink": {
+														"name": "DATA_STREAM_IDENTIFIER",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"type": "String",
+														"ordinal": 4
+													},
+													"sink": {
+														"name": "READING_TYPE",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"type": "String",
+														"format": "MM/dd/yyyy",
+														"ordinal": 5
+													},
+													"sink": {
+														"name": "MEASURE_DATE",
+														"type": "DateTime"
+													}
+												},
+												{
+													"source": {
+														"type": "String",
+														"ordinal": 6
+													},
+													"sink": {
+														"name": "TRADING_PERIOD",
+														"type": "Int64"
+													}
+												},
+												{
+													"source": {
+														"type": "String",
+														"ordinal": 7
+													},
+													"sink": {
+														"name": "ACTIVE_ENERGY",
+														"type": "Double"
+													}
+												},
+												{
+													"source": {
+														"type": "String",
+														"ordinal": 8
+													},
+													"sink": {
+														"name": "REACTIVE_ENERGY",
+														"type": "Double"
+													}
+												},
+												{
+													"source": {
+														"type": "String",
+														"ordinal": 9
+													},
+													"sink": {
+														"name": "APPARENT_ENERGY",
+														"type": "Double"
+													}
+												},
+												{
+													"source": {
+														"type": "String",
+														"ordinal": 10
+													},
+													"sink": {
+														"name": "ENERGY_FLOW_DIRECTION",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"name": "FILE_ID",
+														"type": "String"
+													},
+													"sink": {
+														"name": "FILE_ID",
+														"type": "Int64"
+													}
+												}
+											]
+										}
+									},
+									"inputs": [
+										{
+											"referenceName": "DS_LANDING_CSV",
+											"type": "DatasetReference",
+											"parameters": {
+												"ContainerName": "ems",
+												"RelativePath": {
+													"value": "@coalesce(null)",
+													"type": "Expression"
+												},
+												"FileName": {
+													"value": "@item().name",
+													"type": "Expression"
+												}
+											}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "DS_SNOWFLAKE",
+											"type": "DatasetReference",
+											"parameters": {
+												"TableName": "EMS__METERING_RECORD"
+											}
+										}
+									]
+								},
+								{
+									"name": "Lookup1",
+									"type": "Lookup",
+									"state": "Inactive",
+									"onInactiveMarkAs": "Succeeded",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "DelimitedTextSource",
+											"storeSettings": {
+												"type": "AzureBlobStorageReadSettings",
+												"recursive": true,
+												"enablePartitionDiscovery": false
+											},
+											"formatSettings": {
+												"type": "DelimitedTextReadSettings"
+											}
+										},
+										"dataset": {
+											"referenceName": "DS_LANDING_CSV",
+											"type": "DatasetReference",
+											"parameters": {
+												"ContainerName": "ems",
+												"RelativePath": {
+													"value": "@coalesce(null)",
+													"type": "Expression"
+												},
+												"FileName": {
+													"value": "@item().name",
+													"type": "Expression"
+												}
+											}
+										}
+									}
+								},
+								{
+									"name": "Data flow1",
+									"type": "ExecuteDataFlow",
+									"dependsOn": [
+										{
+											"activity": "Copy data1",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"dataflow": {
+											"referenceName": "Copy EMS Header Data",
+											"type": "DataFlowReference",
+											"parameters": {},
+											"datasetParameters": {
+												"source1": {},
+												"sink1": {}
+											}
+										},
+										"staging": {},
+										"compute": {
+											"coreCount": 8,
+											"computeType": "General"
+										},
+										"traceLevel": "Fine"
+									}
+								}
+							]
+						}
 					}
 				],
 				"policy": {
@@ -723,7 +1335,1290 @@
 				"annotations": []
 			},
 			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/DS_LANDING_CSV')]"
+				"[concat(variables('factoryId'), '/datasets/DS_LANDING_CSV')]",
+				"[concat(variables('factoryId'), '/datasets/DS_SNOWFLAKE')]",
+				"[concat(variables('factoryId'), '/dataflows/Copy EMS Header Data')]",
+				"[concat(variables('factoryId'), '/linkedServices/LS_Landing')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Scada')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Copy data MS01_LEACHATE",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "DelimitedTextSource",
+								"storeSettings": {
+									"type": "AzureBlobStorageReadSettings",
+									"recursive": true,
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "DelimitedTextReadSettings",
+									"skipLineCount": 4
+								}
+							},
+							"sink": {
+								"type": "SnowflakeV2Sink",
+								"importSettings": {
+									"type": "SnowflakeImportCopyCommand"
+								}
+							},
+							"enableStaging": true,
+							"stagingSettings": {
+								"linkedServiceName": {
+									"referenceName": "LS_Landing",
+									"type": "LinkedServiceReference"
+								},
+								"path": "scada"
+							},
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 1
+										},
+										"sink": {
+											"name": "TIMESTAMP",
+											"type": "DateTime"
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 2
+										},
+										"sink": {
+											"name": "RECORD",
+											"type": "Int64"
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 3
+										},
+										"sink": {
+											"name": "LEACH_FLOWRATE_AVG",
+											"type": "Double"
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 4
+										},
+										"sink": {
+											"name": "LEACH_LEVEL_MAX",
+											"type": "Double"
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 5
+										},
+										"sink": {
+											"name": "LEACH_PUMP_AVG",
+											"type": "Double"
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 6
+										},
+										"sink": {
+											"name": "LEACH_PUMP_MAX",
+											"type": "Double"
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 7
+										},
+										"sink": {
+											"name": "LEACH_PUMP_MIN",
+											"type": "Double"
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 8
+										},
+										"sink": {
+											"name": "LEACH_BATTERY_MIN",
+											"type": "Double"
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 9
+										},
+										"sink": {
+											"name": "RECIRC_FLOWRATE_AVG",
+											"type": "Double"
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 10
+										},
+										"sink": {
+											"name": "LEACH_TEMPERATURE_AVG",
+											"type": "Double"
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 11
+										},
+										"sink": {
+											"name": "LEACH_VOLUME_SUM",
+											"type": "Double"
+										}
+									}
+								]
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "DS_LANDING_CSV",
+								"type": "DatasetReference",
+								"parameters": {
+									"ContainerName": "scada",
+									"RelativePath": {
+										"value": "@coalesce(null)",
+										"type": "Expression"
+									},
+									"FileName": "CWS-MS01-Leachate_MS1.csv"
+								}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "DS_SNOWFLAKE",
+								"type": "DatasetReference",
+								"parameters": {
+									"TableName": "SCADA__CWS_MS01_LEACHATE_MS1"
+								}
+							}
+						]
+					},
+					{
+						"name": "Copy data MS12_BIOX",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "Copy data MS01_LEACHATE",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "DelimitedTextSource",
+								"storeSettings": {
+									"type": "AzureBlobStorageReadSettings",
+									"recursive": true,
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "DelimitedTextReadSettings",
+									"skipLineCount": 4
+								}
+							},
+							"sink": {
+								"type": "SnowflakeV2Sink",
+								"importSettings": {
+									"type": "SnowflakeImportCopyCommand"
+								}
+							},
+							"enableStaging": true,
+							"stagingSettings": {
+								"linkedServiceName": {
+									"referenceName": "LS_Landing",
+									"type": "LinkedServiceReference"
+								},
+								"path": "scada"
+							},
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 1
+										},
+										"sink": {
+											"name": "TIMESTAMP",
+											"type": "DateTime"
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 2
+										},
+										"sink": {
+											"name": "RECORD",
+											"type": "Int64"
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 3
+										},
+										"sink": {
+											"name": "ODOURALARM",
+											"type": "Int64"
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 4
+										},
+										"sink": {
+											"name": "AVG_WIND_SPEED",
+											"type": "Double"
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 5
+										},
+										"sink": {
+											"name": "WD_AVERAGE",
+											"type": "Double"
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 6
+										},
+										"sink": {
+											"name": "NEUTRALISER_LVL",
+											"type": "Int64"
+										}
+									}
+								]
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "DS_LANDING_CSV",
+								"type": "DatasetReference",
+								"parameters": {
+									"ContainerName": "scada",
+									"RelativePath": {
+										"value": "@coalesce(null)",
+										"type": "Expression"
+									},
+									"FileName": "CWS-MS12-Biox_BiOX_5.csv"
+								}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "DS_SNOWFLAKE",
+								"type": "DatasetReference",
+								"parameters": {
+									"TableName": "SCADA__CWS_MS12_BIOX_BIOX_5"
+								}
+							}
+						]
+					},
+					{
+						"name": "Copy data MS13_PUMP",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "Copy data MS12_BIOX",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "DelimitedTextSource",
+								"storeSettings": {
+									"type": "AzureBlobStorageReadSettings",
+									"recursive": true,
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "DelimitedTextReadSettings",
+									"skipLineCount": 4
+								}
+							},
+							"sink": {
+								"type": "SnowflakeV2Sink",
+								"importSettings": {
+									"type": "SnowflakeImportCopyCommand"
+								}
+							},
+							"enableStaging": true,
+							"stagingSettings": {
+								"linkedServiceName": {
+									"referenceName": "LS_Landing",
+									"type": "LinkedServiceReference"
+								},
+								"path": "scada"
+							},
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 1
+										},
+										"sink": {
+											"name": "TIMESTAMP",
+											"type": "DateTime"
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 2
+										},
+										"sink": {
+											"name": "RECORD",
+											"type": "Int64"
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 3
+										},
+										"sink": {
+											"name": "RM_PUMP_P7_DUTY",
+											"type": "Int64"
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 4
+										},
+										"sink": {
+											"name": "RM_PUMP_P8_DUTY",
+											"type": "Int64"
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 5
+										},
+										"sink": {
+											"name": "RM_FLOW_15MIN",
+											"type": "Int64"
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 6
+										},
+										"sink": {
+											"name": "RM_FLOW_DAY",
+											"type": "Int64"
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 7
+										},
+										"sink": {
+											"name": "RM_FLOW_ALARM_MAX",
+											"type": "Int64"
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 8
+										},
+										"sink": {
+											"name": "RM_PUMP_P7_ALARM_MAX",
+											"type": "Int64"
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 9
+										},
+										"sink": {
+											"name": "RM_PUMP_P8_ALARM_MAX",
+											"type": "Int64"
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 10
+										},
+										"sink": {
+											"name": "RM_FRATE_ALARM_MAX",
+											"type": "Int64"
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 11
+										},
+										"sink": {
+											"name": "EXISITNG_TANK_LEVEL_AVG",
+											"type": "Double"
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 12
+										},
+										"sink": {
+											"name": "RM_BATT_MIN",
+											"type": "Double"
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 13
+										},
+										"sink": {
+											"name": "RM_PTEMP",
+											"type": "Double"
+										}
+									}
+								]
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "DS_LANDING_CSV",
+								"type": "DatasetReference",
+								"parameters": {
+									"ContainerName": "scada",
+									"RelativePath": {
+										"value": "@coalesce(null)",
+										"type": "Expression"
+									},
+									"FileName": "CWS-MS13-Pump_MS13.csv"
+								}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "DS_SNOWFLAKE",
+								"type": "DatasetReference",
+								"parameters": {
+									"TableName": "SCADA__CWS_MS13_PUMP_MS13"
+								}
+							}
+						]
+					},
+					{
+						"name": "Copy data MS14_FLARE",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "Copy data MS13_PUMP",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "DelimitedTextSource",
+								"storeSettings": {
+									"type": "AzureBlobStorageReadSettings",
+									"recursive": true,
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "DelimitedTextReadSettings",
+									"skipLineCount": 4
+								}
+							},
+							"sink": {
+								"type": "SnowflakeV2Sink",
+								"importSettings": {
+									"type": "SnowflakeImportCopyCommand"
+								}
+							},
+							"enableStaging": true,
+							"stagingSettings": {
+								"linkedServiceName": {
+									"referenceName": "LS_Landing",
+									"type": "LinkedServiceReference"
+								},
+								"path": "scada"
+							},
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 1
+										},
+										"sink": {
+											"name": "TIMESTAMP",
+											"type": "DateTime"
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 2
+										},
+										"sink": {
+											"name": "RECORD",
+											"type": "Int64"
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 3
+										},
+										"sink": {
+											"name": "GM_PUMP_P9_DUTY",
+											"type": "Int64"
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 4
+										},
+										"sink": {
+											"name": "GM_PUMP_P10_DUTY",
+											"type": "Int64"
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 5
+										},
+										"sink": {
+											"name": "GM_FLOW_15MIN",
+											"type": "Int64"
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 6
+										},
+										"sink": {
+											"name": "GM_FLOW_DAY",
+											"type": "Int64"
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 7
+										},
+										"sink": {
+											"name": "GM_FLOW_ALARM_MAX",
+											"type": "Int64"
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 8
+										},
+										"sink": {
+											"name": "GM_PUMP_P9_ALARM_MAX",
+											"type": "Int64"
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 9
+										},
+										"sink": {
+											"name": "GM_PUMP_P10_ALARM_MAX",
+											"type": "Int64"
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 10
+										},
+										"sink": {
+											"name": "GM_FRATE_ALARM_MAX",
+											"type": "Int64"
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 11
+										},
+										"sink": {
+											"name": "LT_TANK_1_LEVEL_AVG",
+											"type": "Double"
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 12
+										},
+										"sink": {
+											"name": "LT_TANK_2_LEVEL_AVG",
+											"type": "Double"
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 13
+										},
+										"sink": {
+											"name": "LT_TANK_1_VOLUME_AVG",
+											"type": "Double"
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 14
+										},
+										"sink": {
+											"name": "LT_TANK_2_VOLUME_AVG",
+											"type": "Double"
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 15
+										},
+										"sink": {
+											"name": "GM_BATT_MIN",
+											"type": "Double"
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 16
+										},
+										"sink": {
+											"name": "GM_PTEMP",
+											"type": "Double"
+										}
+									}
+								]
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "DS_LANDING_CSV",
+								"type": "DatasetReference",
+								"parameters": {
+									"ContainerName": "scada",
+									"RelativePath": {
+										"value": "@coalesce(null)",
+										"type": "Expression"
+									},
+									"FileName": "CWS-MS14-Flare_MS14.csv"
+								}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "DS_SNOWFLAKE",
+								"type": "DatasetReference",
+								"parameters": {
+									"TableName": "SCADA__CWS_MS14_FLARE_MS14"
+								}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/DS_LANDING_CSV')]",
+				"[concat(variables('factoryId'), '/datasets/DS_SNOWFLAKE')]",
+				"[concat(variables('factoryId'), '/linkedServices/LS_Landing')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/WeighBridge')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Get Metadata1",
+						"type": "GetMetadata",
+						"state": "Inactive",
+						"onInactiveMarkAs": "Succeeded",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataset": {
+								"referenceName": "DS_LANDING_EXCEL",
+								"type": "DatasetReference",
+								"parameters": {
+									"ContainerName": "weighbridge",
+									"FileName": {
+										"value": "@coalesce(null)",
+										"type": "Expression"
+									},
+									"WorkSheetName": "@coalesce(null)",
+									"Range": "@coalesce(null)"
+								}
+							},
+							"fieldList": [
+								"childItems"
+							],
+							"storeSettings": {
+								"type": "AzureBlobStorageReadSettings",
+								"recursive": true,
+								"enablePartitionDiscovery": false
+							}
+						}
+					},
+					{
+						"name": "ForEach1",
+						"type": "ForEach",
+						"state": "Inactive",
+						"onInactiveMarkAs": "Succeeded",
+						"dependsOn": [
+							{
+								"activity": "Get Metadata1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('Get Metadata1').output.childItems",
+								"type": "Expression"
+							},
+							"activities": [
+								{
+									"name": "Copy data1",
+									"type": "Copy",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "ExcelSource",
+											"storeSettings": {
+												"type": "AzureBlobStorageReadSettings",
+												"recursive": true,
+												"enablePartitionDiscovery": false
+											}
+										},
+										"sink": {
+											"type": "SnowflakeV2Sink",
+											"preCopyScript": {
+												"value": "@concat('BEGIN  USE SCHEMA RAW;  TRUNCATE TABLE ', toUpper(concat('WEIGHBRIDGE__',replace(replace(item().name,'.xlsx',''),' ', '_'))),';  END')",
+												"type": "Expression"
+											},
+											"importSettings": {
+												"type": "SnowflakeImportCopyCommand"
+											}
+										},
+										"enableStaging": true,
+										"stagingSettings": {
+											"linkedServiceName": {
+												"referenceName": "LS_Landing",
+												"type": "LinkedServiceReference"
+											},
+											"path": "weighbridge"
+										}
+									},
+									"inputs": [
+										{
+											"referenceName": "DS_LANDING_EXCEL",
+											"type": "DatasetReference",
+											"parameters": {
+												"ContainerName": "weighbridge",
+												"FileName": {
+													"value": "@item().name",
+													"type": "Expression"
+												},
+												"WorkSheetName": {
+													"value": "@replace(replace(item().name,'.xlsx',''),' ', '_')",
+													"type": "Expression"
+												},
+												"Range": "@coalesce(null)"
+											}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "DS_SNOWFLAKE",
+											"type": "DatasetReference",
+											"parameters": {
+												"TableName": {
+													"value": "@toUpper(concat('WEIGHBRIDGE__',replace(replace(item().name,'.xlsx',''),' ', '_')))",
+													"type": "Expression"
+												}
+											}
+										}
+									]
+								}
+							]
+						}
+					},
+					{
+						"name": "Copy data1_copy1",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "ForEach1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "ExcelSource",
+								"storeSettings": {
+									"type": "AzureBlobStorageReadSettings",
+									"recursive": true,
+									"enablePartitionDiscovery": false
+								}
+							},
+							"sink": {
+								"type": "SnowflakeV2Sink",
+								"preCopyScript": {
+									"value": "@concat('BEGIN  USE SCHEMA RAW;  TRUNCATE TABLE WEIGHBRIDGE__TRANSACTION;  END')",
+									"type": "Expression"
+								},
+								"importSettings": {
+									"type": "SnowflakeImportCopyCommand"
+								}
+							},
+							"enableStaging": true,
+							"stagingSettings": {
+								"linkedServiceName": {
+									"referenceName": "LS_Landing",
+									"type": "LinkedServiceReference"
+								},
+								"path": "weighbridge"
+							},
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"name": "Number",
+											"type": "String"
+										},
+										"sink": {
+											"name": "NUMBER",
+											"type": "Int64"
+										}
+									},
+									{
+										"source": {
+											"name": "Site Id",
+											"type": "String"
+										},
+										"sink": {
+											"name": "SITE_ID",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "Weigh Type",
+											"type": "String"
+										},
+										"sink": {
+											"name": "WEIGH_TYPE",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "Customer Id",
+											"type": "String"
+										},
+										"sink": {
+											"name": "CUSTOMER_ID",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "Vehicle Tag Id",
+											"type": "String"
+										},
+										"sink": {
+											"name": "VEHICLE_TAG_ID",
+											"type": "Int64"
+										}
+									},
+									{
+										"source": {
+											"name": "Trailer 1 Reg Plate",
+											"type": "String"
+										},
+										"sink": {
+											"name": "TRAILER_1_REG_PLATE",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "Trailer 2 Reg Plate",
+											"type": "String"
+										},
+										"sink": {
+											"name": "TRAILER_2_REG_PLATE",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "Date Time",
+											"type": "String"
+										},
+										"sink": {
+											"name": "DATE_TIME",
+											"type": "DateTime"
+										}
+									},
+									{
+										"source": {
+											"name": "Date Time Out",
+											"type": "String"
+										},
+										"sink": {
+											"name": "DATE_TIME_OUT",
+											"type": "DateTime"
+										}
+									},
+									{
+										"source": {
+											"name": "Product Id",
+											"type": "String"
+										},
+										"sink": {
+											"name": "PRODUCT_ID",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "Weight In",
+											"type": "String"
+										},
+										"sink": {
+											"name": "WEIGHT_IN",
+											"type": "Int64"
+										}
+									},
+									{
+										"source": {
+											"name": "Gross",
+											"type": "String"
+										},
+										"sink": {
+											"name": "GROSS",
+											"type": "Int64"
+										}
+									},
+									{
+										"source": {
+											"name": "Tare",
+											"type": "String"
+										},
+										"sink": {
+											"name": "TARE",
+											"type": "Int64"
+										}
+									},
+									{
+										"source": {
+											"name": "Net",
+											"type": "String"
+										},
+										"sink": {
+											"name": "NET",
+											"type": "Int64"
+										}
+									},
+									{
+										"source": {
+											"name": "Amount",
+											"type": "String"
+										},
+										"sink": {
+											"name": "AMOUNT",
+											"type": "Double"
+										}
+									},
+									{
+										"source": {
+											"name": "Bridge Too Short",
+											"type": "String"
+										},
+										"sink": {
+											"name": "BRIDGE_TOO_SHORT",
+											"type": "Boolean"
+										}
+									},
+									{
+										"source": {
+											"name": "Status",
+											"type": "String"
+										},
+										"sink": {
+											"name": "STATUS",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "Northing",
+											"type": "String"
+										},
+										"sink": {
+											"name": "NORTHING",
+											"type": "Boolean"
+										}
+									},
+									{
+										"source": {
+											"name": "Easting",
+											"type": "String"
+										},
+										"sink": {
+											"name": "EASTING",
+											"type": "Boolean"
+										}
+									},
+									{
+										"source": {
+											"name": "RL",
+											"type": "String"
+										},
+										"sink": {
+											"name": "RL",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "DisposalTime",
+											"type": "String"
+										},
+										"sink": {
+											"name": "DISPOSALTIME",
+											"type": "DateTime"
+										}
+									},
+									{
+										"source": {
+											"name": "CertifiedBurial",
+											"type": "String"
+										},
+										"sink": {
+											"name": "CERTIFIEDBURIAL",
+											"type": "Boolean"
+										}
+									},
+									{
+										"source": {
+											"name": "10TRate",
+											"type": "String"
+										},
+										"sink": {
+											"name": "RATE10T",
+											"type": "Boolean"
+										}
+									},
+									{
+										"source": {
+											"name": "ExtraHandling",
+											"type": "String"
+										},
+										"sink": {
+											"name": "EXTRAHANDLING",
+											"type": "Boolean"
+										}
+									}
+								]
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "DS_LANDING_EXCEL",
+								"type": "DatasetReference",
+								"parameters": {
+									"ContainerName": "weighbridge",
+									"FileName": "Transaction.xlsx",
+									"WorkSheetName": {
+										"value": "Transaction",
+										"type": "Expression"
+									},
+									"Range": "@coalesce(null)"
+								}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "DS_SNOWFLAKE",
+								"type": "DatasetReference",
+								"parameters": {
+									"TableName": {
+										"value": "WEIGHBRIDGE__TRANSACTION",
+										"type": "Expression"
+									}
+								}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/DS_LANDING_EXCEL')]",
+				"[concat(variables('factoryId'), '/datasets/DS_SNOWFLAKE')]",
+				"[concat(variables('factoryId'), '/linkedServices/LS_Landing')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DS_DAMSTRA')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "LS_Damstra",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"SchemaName": {
+						"type": "string"
+					},
+					"TableName": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [],
+				"typeProperties": {
+					"schema": {
+						"value": "@dataset().SchemaName",
+						"type": "Expression"
+					},
+					"table": {
+						"value": "@dataset().TableName",
+						"type": "Expression"
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/LS_Damstra')]"
 			]
 		},
 		{

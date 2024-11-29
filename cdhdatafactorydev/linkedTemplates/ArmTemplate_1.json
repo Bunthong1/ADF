@@ -13,17 +13,19 @@
 	},
 	"resources": [
 		{
-			"name": "[concat(parameters('factoryName'), '/PL_Wastetrack_TCDC_Master')]",
+			"name": "[concat(parameters('factoryName'), '/VaultGRC')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
 			"properties": {
 				"activities": [
 					{
-						"name": "Get Control File",
+						"name": "Lookup1",
 						"type": "Lookup",
+						"state": "Inactive",
+						"onInactiveMarkAs": "Succeeded",
 						"dependsOn": [],
 						"policy": {
-							"timeout": "00:30:00",
+							"timeout": "0.12:00:00",
 							"retry": 0,
 							"retryIntervalInSeconds": 30,
 							"secureOutput": false,
@@ -32,37 +34,33 @@
 						"userProperties": [],
 						"typeProperties": {
 							"source": {
-								"type": "ExcelSource",
-								"storeSettings": {
-									"type": "AzureBlobStorageReadSettings",
-									"recursive": true,
-									"enablePartitionDiscovery": false
-								}
+								"type": "AzureSqlSource",
+								"sqlReaderQuery": "SELECT\t\nTABLE_NAME\nFROM INFORMATION_SCHEMA.TABLES\nWHERE TABLE_SCHEMA = 'dbo'\n",
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
 							},
 							"dataset": {
-								"referenceName": "DS_LANDING_EXCEL",
+								"referenceName": "DS_DAMSTRA",
 								"type": "DatasetReference",
 								"parameters": {
-									"ContainerName": "system",
-									"FileName": {
-										"value": "@pipeline().parameters.control_file_name",
+									"SchemaName": {
+										"value": "@coalesce(null)",
 										"type": "Expression"
 									},
-									"WorkSheetName": {
-										"value": "@pipeline().parameters.site_name",
-										"type": "Expression"
-									}
+									"TableName": "@coalesce(null)"
 								}
 							},
 							"firstRowOnly": false
 						}
 					},
 					{
-						"name": "For each object in control file",
+						"name": "ForEach1",
 						"type": "ForEach",
+						"state": "Inactive",
+						"onInactiveMarkAs": "Succeeded",
 						"dependsOn": [
 							{
-								"activity": "Get Control File",
+								"activity": "Lookup1",
 								"dependencyConditions": [
 									"Succeeded"
 								]
@@ -71,155 +69,340 @@
 						"userProperties": [],
 						"typeProperties": {
 							"items": {
-								"value": "@activity('Get Control File').output.value",
+								"value": "@activity('Lookup1').output.value",
 								"type": "Expression"
 							},
-							"isSequential": true,
 							"activities": [
 								{
-									"name": "If enable_load",
-									"type": "IfCondition",
+									"name": "Copy data1",
+									"type": "Copy",
 									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
 									"userProperties": [],
 									"typeProperties": {
-										"expression": {
-											"value": "@equals(item().enable_load, '1')",
-											"type": "Expression"
+										"source": {
+											"type": "AzureSqlSource",
+											"queryTimeout": "02:00:00",
+											"partitionOption": "None"
 										},
-										"ifTrueActivities": [
-											{
-												"name": "Execute Pipeline",
-												"type": "ExecutePipeline",
-												"dependsOn": [],
-												"policy": {
-													"secureInput": false
-												},
-												"userProperties": [],
-												"typeProperties": {
-													"pipeline": {
-														"referenceName": "PL_Wastetrack_ObjectIngestion",
-														"type": "PipelineReference"
+										"sink": {
+											"type": "DelimitedTextSink",
+											"storeSettings": {
+												"type": "AzureBlobStorageWriteSettings"
+											},
+											"formatSettings": {
+												"type": "DelimitedTextWriteSettings",
+												"quoteAllText": true,
+												"fileExtension": ".txt"
+											}
+										},
+										"enableStaging": false,
+										"translator": {
+											"type": "TabularTranslator",
+											"mappings": [
+												{
+													"source": {
+														"name": "EventId",
+														"type": "Int32",
+														"physicalType": "int"
 													},
-													"waitOnCompletion": true,
-													"parameters": {
-														"wastetrack_endpoint": {
-															"value": "@item().wastetrack_endpoint",
-															"type": "Expression"
-														},
-														"source_system": {
-															"value": "@pipeline().parameters.source_system",
-															"type": "Expression"
-														},
-														"snf_table_name": {
-															"value": "@item().snf_table_name",
-															"type": "Expression"
-														},
-														"add_on": {
-															"value": "@item().add_on",
-															"type": "Expression"
-														},
-														"site_name": {
-															"value": "@pipeline().parameters.site_name",
-															"type": "Expression"
-														},
-														"file_ext": {
-															"value": "@item().file_ext",
-															"type": "Expression"
-														},
-														"extract_start_tms": {
-															"value": "@formatDateTime(convertFromUtc(utcNow(), 'New Zealand Standard Time'), 'yyyy-MM-dd')",
-															"type": "Expression"
-														},
-														"run_date": {
-															"value": "@formatDateTime(convertFromUtc(utcNow(), 'New Zealand Standard Time'), 'yyyy-MM')",
-															"type": "Expression"
-														},
-														"secret_name": {
-															"value": "@pipeline().parameters.secret_name",
-															"type": "Expression"
-														}
+													"sink": {
+														"type": "String",
+														"physicalType": "String",
+														"ordinal": 1
+													}
+												},
+												{
+													"source": {
+														"name": "EventDate",
+														"type": "DateTime",
+														"physicalType": "date"
+													},
+													"sink": {
+														"type": "String",
+														"physicalType": "String",
+														"ordinal": 2
+													}
+												},
+												{
+													"source": {
+														"name": "EventType",
+														"type": "String",
+														"physicalType": "nvarchar"
+													},
+													"sink": {
+														"type": "String",
+														"physicalType": "String",
+														"ordinal": 3
+													}
+												},
+												{
+													"source": {
+														"name": "EventInjuryType",
+														"type": "String",
+														"physicalType": "varchar"
+													},
+													"sink": {
+														"type": "String",
+														"physicalType": "String",
+														"ordinal": 4
+													}
+												},
+												{
+													"source": {
+														"name": "EventCategory",
+														"type": "String",
+														"physicalType": "varchar"
+													},
+													"sink": {
+														"type": "String",
+														"physicalType": "String",
+														"ordinal": 5
+													}
+												},
+												{
+													"source": {
+														"name": "Environment",
+														"type": "Byte",
+														"physicalType": "tinyint"
+													},
+													"sink": {
+														"type": "String",
+														"physicalType": "String",
+														"ordinal": 6
+													}
+												},
+												{
+													"source": {
+														"name": "Notifiable",
+														"type": "Int32",
+														"physicalType": "int"
+													},
+													"sink": {
+														"type": "String",
+														"physicalType": "String",
+														"ordinal": 7
+													}
+												},
+												{
+													"source": {
+														"name": "Fatality",
+														"type": "Int32",
+														"physicalType": "int"
+													},
+													"sink": {
+														"type": "String",
+														"physicalType": "String",
+														"ordinal": 8
+													}
+												},
+												{
+													"source": {
+														"name": "MVA",
+														"type": "Int32",
+														"physicalType": "int"
+													},
+													"sink": {
+														"type": "String",
+														"physicalType": "String",
+														"ordinal": 9
+													}
+												},
+												{
+													"source": {
+														"name": "EventSeverity",
+														"type": "String",
+														"physicalType": "nvarchar"
+													},
+													"sink": {
+														"type": "String",
+														"physicalType": "String",
+														"ordinal": 10
+													}
+												},
+												{
+													"source": {
+														"name": "EventStatus",
+														"type": "String",
+														"physicalType": "varchar"
+													},
+													"sink": {
+														"type": "String",
+														"physicalType": "String",
+														"ordinal": 11
+													}
+												},
+												{
+													"source": {
+														"name": "PersonType",
+														"type": "String",
+														"physicalType": "varchar"
+													},
+													"sink": {
+														"type": "String",
+														"physicalType": "String",
+														"ordinal": 12
+													}
+												},
+												{
+													"source": {
+														"name": "SiteName",
+														"type": "String",
+														"physicalType": "nvarchar"
+													},
+													"sink": {
+														"type": "String",
+														"physicalType": "String",
+														"ordinal": 13
+													}
+												},
+												{
+													"source": {
+														"name": "Subject",
+														"type": "String",
+														"physicalType": "varchar"
+													},
+													"sink": {
+														"type": "String",
+														"physicalType": "String",
+														"ordinal": 14
+													}
+												},
+												{
+													"source": {
+														"name": "InjuryTreatmentRequired",
+														"type": "String",
+														"physicalType": "varchar"
+													},
+													"sink": {
+														"type": "String",
+														"physicalType": "String",
+														"ordinal": 15
 													}
 												}
+											],
+											"typeConversion": true,
+											"typeConversionSettings": {
+												"allowDataTruncation": true,
+												"treatBooleanAsNumber": false
 											}
-										]
-									}
+										}
+									},
+									"inputs": [
+										{
+											"referenceName": "DS_DAMSTRA",
+											"type": "DatasetReference",
+											"parameters": {
+												"SchemaName": "dbo",
+												"TableName": {
+													"value": "@item().TABLE_NAME",
+													"type": "Expression"
+												}
+											}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "DS_LANDING_CSV",
+											"type": "DatasetReference",
+											"parameters": {
+												"ContainerName": "vaultgrc",
+												"RelativePath": {
+													"value": "@coalesce(null)",
+													"type": "Expression"
+												},
+												"FileName": {
+													"value": "@concat(item().TABLE_NAME, '.csv')",
+													"type": "Expression"
+												}
+											}
+										}
+									]
 								}
 							]
 						}
 					},
 					{
-						"name": "Move file to processed",
-						"type": "ExecutePipeline",
-						"state": "Inactive",
-						"onInactiveMarkAs": "Succeeded",
+						"name": "Copy data2",
+						"type": "Copy",
 						"dependsOn": [
 							{
-								"activity": "For each object in control file",
+								"activity": "ForEach1",
 								"dependencyConditions": [
 									"Succeeded"
 								]
 							}
 						],
 						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
 							"secureInput": false
 						},
 						"userProperties": [],
 						"typeProperties": {
-							"waitOnCompletion": true,
-							"parameters": {
-								"source_system": {
-									"value": "@pipeline().parameters.source_system",
-									"type": "Expression"
+							"source": {
+								"type": "DelimitedTextSource",
+								"storeSettings": {
+									"type": "AzureBlobStorageReadSettings",
+									"recursive": true,
+									"enablePartitionDiscovery": false
 								},
-								"extract_start_tms": {
-									"value": "@variables('extract_start_tms')",
-									"type": "Expression"
+								"formatSettings": {
+									"type": "DelimitedTextReadSettings"
+								}
+							},
+							"sink": {
+								"type": "SnowflakeV2Sink",
+								"importSettings": {
+									"type": "SnowflakeImportCopyCommand"
+								}
+							},
+							"enableStaging": true,
+							"stagingSettings": {
+								"linkedServiceName": {
+									"referenceName": "LS_Landing",
+									"type": "LinkedServiceReference"
 								},
-								"site_name": {
-									"value": "@pipeline().parameters.site_name",
-									"type": "Expression"
+								"path": "vaultgrc"
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "DS_LANDING_CSV",
+								"type": "DatasetReference",
+								"parameters": {
+									"ContainerName": "vaultgrc",
+									"RelativePath": {
+										"value": "@coalesce(null)",
+										"type": "Expression"
+									},
+									"FileName": "CSV_AllEvent.csv"
 								}
 							}
-						}
+						],
+						"outputs": [
+							{
+								"referenceName": "DS_SNOWFLAKE",
+								"type": "DatasetReference",
+								"parameters": {
+									"TableName": "VAULTGRC__CSV_ALLEVENT"
+								}
+							}
+						]
 					}
 				],
 				"policy": {
 					"elapsedTimeMetric": {}
 				},
-				"parameters": {
-					"source_system": {
-						"type": "string",
-						"defaultValue": "wastetrack"
-					},
-					"control_file_name": {
-						"type": "string",
-						"defaultValue": "Wastetrack_ControlFile.xlsx"
-					},
-					"site_name": {
-						"type": "string",
-						"defaultValue": "TCDC"
-					},
-					"secret_name": {
-						"type": "string",
-						"defaultValue": "tcdc-api-key"
-					}
-				},
-				"variables": {
-					"test": {
-						"type": "Array"
-					},
-					"extract_start_tms": {
-						"type": "String"
-					},
-					"pipeline_end_time": {
-						"type": "String"
-					}
-				},
-				"folder": {
-					"name": "WasteTrack/WasteTrack_Main"
-				},
-				"annotations": [],
-				"lastPublishTime": "2024-11-19T04:25:15Z"
+				"annotations": []
 			},
 			"dependsOn": []
 		}
